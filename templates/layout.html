@@ -1,308 +1,707 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
-   <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <link rel="stylesheet" href="/static/styles.css">
-      <link rel="stylesheet" href="/static/custom-styles.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
-         integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
-         crossorigin="anonymous" referrerpolicy="no-referrer" />
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <title>
+        {% block title %}{% endblock %}
+    </title>
 
-      <title>
-         {% block title %}{% endblock %}
-      </title>
-   </head>
+    <style>
+        /* =========================================
+           ESTILOS GLOBALES (LAYOUT)
+        ========================================= */
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-   <body>
+        /* --- Buscador --- */
+        .search__input {
+            background-color: #f4f2f2;
+            border: none;
+            color: #646464;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            width: 100%;
+            height: 2.8em;
+            outline: none;
+            padding-right: 40px;
+        }
 
-      <header>
-         <div class="header" style="background-color: #D3242B;">
-            <div class="container-fluid">
-               <div class="row">
-                  <div class="logo-search-container">
-                     <div class="flex-container">
-                        <div class="logo">
-                           <a href="{{ url_for('index') }}"><img
-                                 src="{{ url_for('static', filename='images/logo4.png') }}" alt="#" /></a>
-                        </div>
-                        <form class="search" method="get" action="/search">
-                           <input type="text" class="search__input" name="texto_busqueda" placeholder="Buscar Producto">
-                           <button class="search__button" type="submit">
-                              <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24">
-                                 <g>
-                                    <path
-                                       d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
-                                    </path>
-                                 </g>
-                              </svg>
-                           </button>
-                        </form>
+        .search__button {
+            border: none;
+            background: transparent;
+            margin-left: -40px;
+            z-index: 2;
+        }
 
-                        <div class="account-icon">
-                           {% if user_logged_in %}
-                           <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="white" viewBox="0 0 640 512">
-                              <path
-                                 d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" />
-                           </svg>
-                           <span class="text">Cuenta</span>
-                           {% else %}
-                           <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="white" viewBox="0 0 448 512">
-                              <path
-                                 d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
-                           </svg>
-                           <span class="text">Cuenta</span>
-                           {% endif %}
+        .search__icon {
+            height: 1.5em;
+            width: 1.5em;
+            fill: #b4b4b4;
+        }
 
-                        </div>
+        /* --- Iconos Header (Cuenta / Carrito) --- */
+        .header-icon {
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: opacity 0.3s;
+        }
+        .header-icon:hover {
+            opacity: 0.8;
+            color: #ECA72C;
+        }
+        .header-icon .text {
+            font-size: 14px;
+            margin-top: 4px;
+        }
 
-                        <div class="cart-icon" id="cart-icon">
-                           <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="white" viewBox="0 0 576 512">
-                              <path
-                                 d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-                           </svg>
-                           <span class="text">Carrito</span>
-                        </div>
-                     </div>
-                  </div>
-                  {% if user_logged_in %}
+        /* --- Navbar (Barra gris oscura) --- */
+        .navbar15 {
+            background-color: #3C3C3C;
+            position: relative; /* Importante para que el dropdown flote respecto a esta barra */
+            z-index: 1000;
+        }
 
-                  <div class="login-form-container">
-                     <form class="login-form" action="/login" method="post">
-                        <h3>¡Bienvenido, <br> {{ user_name }}!</h3>
-                        <button id="closeButton" class="close-button" type="button">X</button>
-                        <p>Tu cuenta dispone de: <strong>{{ money }} C$</strong></p>
-                        <a href="/" style="text-decoration: none;">
-                           <div style="padding: 10px 0; border-top: 1px solid rgb(0,0,0,0.1);">
-                              <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="black"
-                                 style="margin-right: 10px;"
-                                 viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                                 <path
-                                    d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z" />
-                              </svg>
-                              <span class="text" style="color: black">Historial</span>
-                           </div>
-                        </a>
+        .navbar15 .btn-nav, .dropbtn {
+            background: none;
+            border: none;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
 
-                        <a class="deslog" href="{{ url_for('logout') }}">
-                           <div class="mb-1" style="padding: 10px 0; border-top: 1px solid rgb(0,0,0,0.1);">
-                              <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="black"
-                                 style="margin-right: 10px;"
-                                 viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                                 <path
-                                    d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
-                              </svg>
-                              <span class="text" style="color: black">Logout</span>
-                           </div>
-                        </a>
+        .navbar15 .btn-nav:hover, .dropbtn:hover {
+            background: #ECA72C;
+            color: black;
+        }
 
-                     </form>
-                  </div>
+        .navbar15 .btn-nav:hover svg, .dropbtn:hover svg {
+            fill: black;
+        }
 
-                  {% else %}
-                  <div class="login-form-container">
-                     <form class="login-form" action="/login" method="post">
-                        <h3>¡Bienvenido!</h3>
-                        <button id="closeButton" class="close-button" type="button">X</button>
-                        <p>¿Aún no tienes cuenta? <a href="{{ url_for('registrarse') }}">Registrarse</a></p>
+        /* --- Dropdown Categorías (CORREGIDO) --- */
+        .categories-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .categories-dropdown {
+            display: none;
+            position: absolute; /* Esto evita que estire la barra negra */
+            top: 100%; 
+            left: 0;
+            width: 320px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0 0 8px 8px;
+            z-index: 2000; /* Superpuesto sobre todo */
+            padding: 15px;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.3);
+        }
 
-                        <div class="mb-3">
-                           <span>Correo Electrónico*</span>
-                           <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="email"
-                              name="correo" placeholder="Correo electrónico*" type="email">
-                           {% if error == "Debe proporcionar el correo electrónico" %}
-                           <p class="error">{{ error }}</p>
-                           {% endif %}
-                        </div>
-                        <div class="mb-3">
-                           <span>Contraseña*:</span>
-                           <input class="form-control mx-auto w-auto" id="password" name="contraseña"
-                              placeholder="Contraseña" type="password">
-                           {% if error == "Debe proporcionar la contraseña" %}
-                           <p class="error">{{ error }}</p>
-                           {% endif %}
-                           {% if error == "Correo y/o contraseña inválidos" %}
-                           <p class="error">{{ error }}</p>
-                           {% endif %}
-                        </div>
-                        <button class="btn btn-primary" type="submit">Iniciar sesión</button>
-                     </form>
-                  </div>
+        .categories-wrapper:hover .categories-dropdown {
+            display: block;
+        }
 
-                  {% endif %}
+        .categories-dropdown h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+        }
 
-               </div>
+        .two-column-list {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+            column-gap: 20px;
+        }
+
+        .two-column-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .two-column-list ul li {
+            margin-bottom: 10px;
+        }
+
+        .two-column-list ul li a {
+            text-decoration: none;
+            color: #444;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .two-column-list ul li a:hover {
+            text-decoration: none;
+            color: #D3242B;
+            font-weight: 500;
+        }
+
+        /* --- Menú Login Flotante --- */
+        .login-form-container {
+            display: none; 
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            z-index: 1050;
+            width: 300px;
+            padding: 20px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 18px;
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .close-button:hover { color: #D3242B; }
+
+        .error { color: red; font-size: 12px; margin-bottom: 5px; }
+
+        /* --- Carrito Lateral (Sidecart) --- */
+        .animation {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 1040;
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+        .animation.show { display: block; opacity: 1; }
+
+        .sidecart {
+            z-index: 1050; position: fixed; top: 0; right: 0;
+            height: 100vh; width: 380px; background-color: #ffffff;
+            box-shadow: -10px 0 25px rgba(0, 0, 0, 0.15);
+            transform: translateX(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidecart.open { transform: translateX(0); }
+
+        .cart-content { height: 100%; display: flex; flex-direction: column; }
+        .cart-header { padding: 1.2rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background-color: #fcfcfc;}
+        .header-title { position: relative; display: flex; align-items: center; gap: 10px; color: #333;}
+        .header-title span { background-color: #D3242B; border-radius: 50%; color: white; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;}
+        .close-btn { font-size: 2rem; cursor: pointer; transition: color 0.2s ease; line-height: 1; color: #888;}
+        .close-btn:hover { color: #D3242B; }
+        
+        .scrolling { flex-grow: 1; overflow-y: auto; overflow-x: hidden; background-color: #fff;}
+        
+        .cart-actions { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.03); background: #fcfcfc; }
+        .cart-actions .subtotal { display: flex; justify-content: space-between; font-weight: 700; font-size: 18px; color: #333; }
+        .cart-actions button, .cart-actions a { border: none; border-radius: 8px; padding: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; width: 100%; transition: opacity 0.2s, transform 0.1s; letter-spacing: 0.5px; font-size: 14px;}
+        .cart-actions button:hover, .cart-actions a:hover { opacity: 0.9; transform: translateY(-1px);}
+        .cart-actions button:active, .cart-actions a:active { transform: translateY(0); }
+        .btn-continue { background-color: #e0e0e0; color: #333; }
+        .btn-checkout { background-color: #D3242B; color: white; text-decoration: none; display: block; text-align: center; }
+
+        /* --- Estilos Internos del Carrito --- */
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #f5f5f5;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .cart-item-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            color: #333;
+            line-height: 1.3;
+        }
+        .cart-item-price {
+            font-size: 15px;
+            color: #D3242B;
+            font-weight: 700;
+        }
+        .cart-qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .cart-qty-btn {
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #333;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .cart-qty-btn:hover {
+            background: #f0f0f0;
+            border-color: #ccc;
+        }
+        .cart-item-remove {
+            color: #bbb;
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: 5px;
+            transition: color 0.2s;
+            padding: 5px;
+        }
+        .cart-item-remove:hover {
+            color: #D3242B;
+        }
+
+        /* --- Footer --- */
+        .footer { background: #252525; padding: 40px 0; color: white; text-align: center; }
+        .location_icon { list-style: none; padding: 0; display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; flex-wrap: wrap; }
+        .location_icon a { color: white; text-decoration: none; display: flex; flex-direction: column; align-items: center; transition: color 0.3s; }
+        .location_icon a:hover { color: #ECA72C; }
+        .location_icon svg { height: 35px; margin-bottom: 10px; fill: currentColor; }
+
+        /* --- Barra Navegación Inferior (Móvil) --- */
+        .bottom-nav-mobile {
+            display: none; 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
+            z-index: 1045;
+            justify-content: space-around;
+            padding: 12px 0;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid #eee;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 11px;
+            font-weight: 600;
+            transition: color 0.3s;
+            flex: 1;
+        }
+        .bottom-nav-item:hover, .bottom-nav-item:active {
+            color: #D3242B;
+        }
+        .bottom-nav-item.whatsapp-btn {
+            color: #25D366; 
+        }
+        .bottom-nav-item svg {
+            height: 22px;
+            margin-bottom: 4px;
+            fill: currentColor;
+        }
+
+        /* --- Media Queries (Reglas Móviles) --- */
+        @media (max-width: 768px) {
+            .bottom-nav-mobile { display: flex; }
+            body { padding-bottom: 80px; } 
+
+            .navbar15 .border-start { display: none !important; } 
+            .footer .location_icon { display: none !important; }
+
+            header .container-fluid > .d-flex {
+                flex-wrap: wrap;
+            }
+            header .search {
+                order: 3;
+                width: 100%;
+                max-width: 100% !important;
+                margin-top: 15px;
+            }
+            
+            .sidecart { width: 100%; }
+            .categories-dropdown { width: 100vw; position: absolute; left: 0; border-radius: 0; box-shadow: 0px 15px 20px rgba(0,0,0,0.2);}
+            .login-form-container { right: 5%; width: 90%; top: 60px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header style="background-color: #D3242B; padding: 15px 0; position: relative;">
+        <div class="container-fluid">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                
+                <div class="logo text-center" style="min-width: 150px;">
+                    <a href="{{ url_for('index') }}">
+                        <img src="{{ url_for('static', filename='images/logo4.png') }}" alt="Logo" style="max-width: 180px; height: auto;" />
+                    </a>
+                </div>
+
+                <form class="search flex-grow-1 d-flex align-items-center" method="get" action="/search" style="max-width: 600px; min-width: 250px;">
+                    <div class="position-relative w-100 d-flex align-items-center">
+                        <input type="text" class="search__input" name="texto_busqueda" placeholder="Buscar Producto">
+                        <button class="search__button" type="submit">
+                            <svg class="search__icon" viewBox="0 0 24 24">
+                                <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="d-flex align-items-center justify-content-center gap-4" style="min-width: 150px;">
+                    <div class="header-icon text-center" id="account-btn">
+                        {% if user_logged_in %}
+                        <svg height="1.5em" fill="currentColor" viewBox="0 0 640 512">
+                            <path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" />
+                        </svg>
+                        {% else %}
+                        <svg height="1.5em" fill="currentColor" viewBox="0 0 448 512">
+                            <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
+                        </svg>
+                        {% endif %}
+                        <div class="text">Cuenta</div>
+                    </div>
+
+                    <div class="header-icon text-center" id="cart-icon">
+                        <svg height="1.5em" fill="currentColor" viewBox="0 0 576 512">
+                            <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                        </svg>
+                        <div class="text">Carrito</div>
+                    </div>
+                </div>
+
             </div>
-         </div>
-      </header>
-      <!-- separador -->
-      <div class="navbar15">
-         <div class="left-section">
-            <button class="dropbtn">
-               <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="white"
-                  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                  <path
-                     d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z" />
-               </svg>
-               <span>Categorías</span>
-            </button>
-            <div class="categories-dropdown">
-               <h3 class="categ-text">Categorias disponibles:</h3>
-               <div class="two-column-list">
-                  <ul>
-                     <li><a href="{{ url_for('products_by_category', category_id=1) }}">Herramientas</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=2) }}">Herraje</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=3) }}">Plomería</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=4) }}">Electricidad</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=5) }}">Iluminación</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=6) }}">Grifería</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=7) }}">Pintura</a></li>
-                     <li><a href="{{ url_for('products_by_category', category_id=8) }}">Hogar</a></li>
-                  </ul>
-               </div>
+        </div>
+
+        {% if user_logged_in %}
+        <div class="login-form-container" id="login-modal">
+            <button id="closeButton" class="close-button" type="button">X</button>
+            <h5 class="mb-3">¡Bienvenido,<br>{{ user_name }}!</h5>
+            <p class="mb-3">Tu cuenta dispone de: <strong>{{ money }} C$</strong></p>
+            
+            <div class="d-flex flex-column gap-2 border-top pt-3">
+                <a href="/" class="text-dark text-decoration-none d-flex align-items-center gap-2">
+                    <svg height="1.2em" fill="currentColor" viewBox="0 0 512 512">
+                        <path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z" />
+                    </svg>
+                    Historial
+                </a>
+                <a href="{{ url_for('logout') }}" class="text-dark text-decoration-none d-flex align-items-center gap-2">
+                    <svg height="1.2em" fill="currentColor" viewBox="0 0 512 512">
+                        <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                    </svg>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="login-form-container" id="login-modal">
+            <button id="closeButton" class="close-button" type="button">X</button>
+            <h5 class="mb-2">¡Bienvenido!</h5>
+            <p class="small mb-3">¿Aún no tienes cuenta? <a href="{{ url_for('registrarse') }}">Registrarse</a></p>
+
+            <form action="/login" method="post">
+                <div class="mb-3">
+                    <label class="form-label small">Correo Electrónico*</label>
+                    <input autocomplete="off" class="form-control" name="correo" placeholder="ejemplo@correo.com" type="email">
+                    {% if error == "Debe proporcionar el correo electrónico" %}<p class="error">{{ error }}</p>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Contraseña*</label>
+                    <input class="form-control" name="contraseña" placeholder="********" type="password">
+                    {% if error == "Debe proporcionar la contraseña" or error == "Correo y/o contraseña inválidos" %}
+                    <p class="error">{{ error }}</p>
+                    {% endif %}
+                </div>
+                <button class="btn btn-danger w-100" type="submit" style="background-color: #d3242b;">Iniciar sesión</button>
+            </form>
+        </div>
+        {% endif %}
+    </header>
+
+    <nav class="navbar15">
+        <div class="container-fluid">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="categories-wrapper">
+                        <button class="dropbtn">
+                            <svg height="1.2em" fill="currentColor" viewBox="0 0 448 512">
+                                <path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3 32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z" />
+                            </svg>
+                            <span>Categorías</span>
+                        </button>
+                        <div class="categories-dropdown">
+                            <h3>Categorías disponibles:</h3>
+                            <div class="two-column-list">
+                                <ul>
+                                    <li><a href="{{ url_for('products_by_category', category_id=1) }}">Herramientas</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=2) }}">Herraje</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=3) }}">Plomería</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=4) }}">Electricidad</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=5) }}">Iluminación</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=6) }}">Grifería</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=7) }}">Pintura</a></li>
+                                    <li><a href="{{ url_for('products_by_category', category_id=8) }}">Hogar</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="d-flex flex-wrap align-items-center border-start border-warning ps-3" style="border-left-width: 2px !important;">
+                    <a href="{{ url_for('catalogo') }}" class="btn-nav">
+                        <svg height="1.2em" fill="currentColor" viewBox="0 0 576 512">
+                            <path d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32C93.5 32 46.3 45.3 18.1 56.1C6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6c11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6c-3.3 2.6-5 6.8-5 11V456c0 11.4 11.7 19.3 22.4 15.5z" />
+                        </svg>
+                        <span>Catálogos</span>
+                    </a>
+                    <a href="/quienes" class="btn-nav">
+                        <svg height="1.2em" fill="currentColor" viewBox="0 0 640 512">
+                            <path d="M72 88a56 56 0 1 1 112 0A56 56 0 1 1 72 88zM64 245.7C54 256.9 48 271.8 48 288s6 31.1 16 42.3V245.7zm144.4-49.3C178.7 222.7 160 261.2 160 304c0 34.3 12 65.8 32 90.5V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V389.2C26.2 371.2 0 332.7 0 288c0-61.9 50.1-112 112-112h32c24 0 46.2 7.5 64.4 20.3zM448 416V394.5c20-24.7 32-56.2 32-90.5c0-42.8-18.7-81.3-48.4-107.7C449.8 183.5 472 176 496 176h32c61.9 0 112 50.1 112 112c0 44.7-26.2 83.2-64 101.2V416c0 17.7-14.3 32-32 32H480c-17.7 0-32-14.3-32-32zm8-328a56 56 0 1 1 112 0A56 56 0 1 1 456 88zM576 245.7v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM320 32a64 64 0 1 1 0 128 64 64 0 1 1 0-128zM240 304c0 16.2 6 31 16 42.3V261.7c-10 11.3-16 26.1-16 42.3zm144-42.3v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM448 304c0 44.7-26.2 83.2-64 101.2V448c0 17.7-14.3 32-32 32H288c-17.7 0-32-14.3-32-32V405.2c-37.8-18-64-56.5-64-101.2c0-61.9 50.1-112 112-112h32c61.9 0 112 50.1 112 112z" />
+                        </svg>
+                        <span>¿Quiénes Somos?</span>
+                    </a>
+                    <a href="/contacto" class="btn-nav">
+                        <svg height="1.2em" fill="currentColor" viewBox="0 0 512 512">
+                            <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
+                        </svg>
+                        <span>Contacto</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="animation" id="cart-overlay"></div>
+    <div class="sidecart" id="sidecartid">
+        <div class="cart-content">
+            <div class="cart-header">
+                <div class="header-title">
+                    <svg height="1.5em" fill="currentColor" viewBox="0 0 576 512">
+                        <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                    </svg>
+                    <h5 class="mb-0">Tu Carrito</h5>
+                    <span id="items-number">0</span>
+                </div>
+                <span id="close-btn" class="close-btn">&times;</span>
             </div>
 
-            <a href="{{ url_for('products') }}" class="btn">
-               <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-                  viewBox="0 0 640 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                  <path
-                     d="M36.8 192H603.2c20.3 0 36.8-16.5 36.8-36.8c0-7.3-2.2-14.4-6.2-20.4L558.2 21.4C549.3 8 534.4 0 518.3 0H121.7c-16 0-31 8-39.9 21.4L6.2 134.7c-4 6.1-6.2 13.2-6.2 20.4C0 175.5 16.5 192 36.8 192zM64 224V384v80c0 26.5 21.5 48 48 48H336c26.5 0 48-21.5 48-48V384 224H320V384H128V224H64zm448 0V480c0 17.7 14.3 32 32 32s32-14.3 32-32V224H512z" />
-               </svg>
-               <span>Comprar</span>
+            <div class="cart-items scrolling" id="scrolling">
+                </div>
 
-            </a>
-         </div>
-         <div class="right-section">
-            <a href="{{ url_for('catalogo') }}" class="btn">
-               <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-                  viewBox="0 0 576 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                  <path
-                     d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32C93.5 32 46.3 45.3 18.1 56.1C6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6c11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6c-3.3 2.6-5 6.8-5 11V456c0 11.4 11.7 19.3 22.4 15.5z" />
-               </svg>
-               <span>Catálogos</span>
-            </a>
-
-            <a href="/quienes" class="btn">
-               <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-                  viewBox="0 0 640 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                  <path
-                     d="M72 88a56 56 0 1 1 112 0A56 56 0 1 1 72 88zM64 245.7C54 256.9 48 271.8 48 288s6 31.1 16 42.3V245.7zm144.4-49.3C178.7 222.7 160 261.2 160 304c0 34.3 12 65.8 32 90.5V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V389.2C26.2 371.2 0 332.7 0 288c0-61.9 50.1-112 112-112h32c24 0 46.2 7.5 64.4 20.3zM448 416V394.5c20-24.7 32-56.2 32-90.5c0-42.8-18.7-81.3-48.4-107.7C449.8 183.5 472 176 496 176h32c61.9 0 112 50.1 112 112c0 44.7-26.2 83.2-64 101.2V416c0 17.7-14.3 32-32 32H480c-17.7 0-32-14.3-32-32zm8-328a56 56 0 1 1 112 0A56 56 0 1 1 456 88zM576 245.7v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM320 32a64 64 0 1 1 0 128 64 64 0 1 1 0-128zM240 304c0 16.2 6 31 16 42.3V261.7c-10 11.3-16 26.1-16 42.3zm144-42.3v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM448 304c0 44.7-26.2 83.2-64 101.2V448c0 17.7-14.3 32-32 32H288c-17.7 0-32-14.3-32-32V405.2c-37.8-18-64-56.5-64-101.2c0-61.9 50.1-112 112-112h32c61.9 0 112 50.1 112 112z" />
-               </svg>
-               <span>¿Quiénes Somos?</span>
-            </a>
-
-            <a href="/contacto" class="btn">
-               <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-                  viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                  <path
-                     d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
-               </svg>
-               <span>Contacto</span>
-
-            </a>
-         </div>
-      </div>
-      <!-- Carrito -->
-
-
-      <div class="animation"></div>
-
-      <div class="sidecart" id="sidecartid">
-         <div class="cart-content">
-            <div>
-               <div class="cart-header">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" fill="black" viewBox="0 0 576 512">
-                     <path
-                        d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-                  </svg>
-                  <div class="header-title">
-                     <h2>Tu Carrito</h2>
-                     <span id="items-number">0</span>
-                  </div>
-                  <span id="close-btn" class="close-btn">&times;</span>
-               </div>
-
-               <div class="cart-items scrolling" id="scrolling"></div>
-
-               <div class="cart-actions" id="cart-actions">
-                  <div class="subtotal">
-                     <p>Subtotal:</p>
-                     <p>C$<span id="subtotal-price">0</span></p>
-                  </div>
-                  <button id="continue">Seguir Comprando</button>
-                  <button><a href="/confirm" style="text-decoration: none; color: black;">Finalizar la
-                        Compra</a></button>
-               </div>
+            <div class="cart-actions" id="cart-actions">
+                <div class="subtotal">
+                    <span>Subtotal:</span>
+                    <span>C$<span id="subtotal-price">0.00</span></span>
+                </div>
+                <button class="btn-continue" id="continue">Seguir Comprando</button>
+                <a href="/confirm" class="btn-checkout py-2 rounded-3">Finalizar la Compra</a>
             </div>
-         </div>
-      </div>
-      {% block main %}
-      {% endblock %}
+        </div>
+    </div>
 
-      <footer>
-         <div class="footer">
-            <div class="container">
-               <div class="row">
-                  <div class="col-md-12">
-                     <ul class="location_icon">
-                        <li>
-                           <a href="https://www.facebook.com/profile.php?id=100078798769664&mibextid=ZbWKwL"
-                              target="_blank">
-                              <svg xmlns="http://www.w3.org/2000/svg" height="1em" fill="white" viewBox="0 0 512 512">
-                                 <path
-                                    d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z" />
-                              </svg>
-                              <span>Facebook</span>
-                           </a>
-                        </li>
-                        <li>
-                           <a href="https://api.whatsapp.com/send?phone=%2B50589869712&data=ARCakHOIOLd9EjFM7JyrnM0NBZC4qvp3NvS9uebfFooEHbUSjMl-vPL0kBjznI3Dx75wuZ6XWe7Nrx2RXqWIvrgb3Jutn-GMwJIGrVJbpP9SKWho4uBFhf6x8qoH_PQpXulZZP3xaVeKQJ20TAIH43gO7A&source=FB_Page&app=facebook&entry_point=page_cta&fbclid=IwAR3Wl-iSiZdVjRdAztppcFm4uUiKiW72ghPZyu-MlVV1Psfj_mxH6BQJFk8"
-                              target="_blank">
-                              <svg xmlns="http://www.w3.org/2000/svg" height="1em" fill="white" viewBox="0 0 448 512">
-                                 <path
-                                    d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
-                              </svg>
-                              <span>Whatsapp</span>
-                           </a>
-                        </li>
-                        <li>
-                           <a href="/contacto">
-                              <svg xmlns="http://www.w3.org/2000/svg" height="1em" fill="white" viewBox="0 0 384 512">
-                                 <path
-                                    d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
-                              </svg>
-                              <span>Ubicación</span>
-                           </a>
-                        </li>
-                     </ul>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-md-12">
-                     <div class="copyright">
-                        <p>&copy; Tu Empresa. Todos los derechos reservados.</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </footer>
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
 
-      <script src="/static/js/cuenta.js"></script>
-      <script>
-         var element = document.querySelector('.cart-items');
-         if (element) {
-            element.style.display = 'flex';
-         }
-      </script>
-      <script src="/static/js/cart.js"></script>
+    <nav class="bottom-nav-mobile">
+        <a href="{{ url_for('products') }}" class="bottom-nav-item">
+            <svg viewBox="0 0 640 512"><path d="M36.8 192H603.2c20.3 0 36.8-16.5 36.8-36.8c0-7.3-2.2-14.4-6.2-20.4L558.2 21.4C549.3 8 534.4 0 518.3 0H121.7c-16 0-31 8-39.9 21.4L6.2 134.7c-4 6.1-6.2 13.2-6.2 20.4C0 175.5 16.5 192 36.8 192zM64 224V384v80c0 26.5 21.5 48 48 48H336c26.5 0 48-21.5 48-48V384 224H320V384H128V224H64zm448 0V480c0 17.7 14.3 32 32 32s32-14.3 32-32V224H512z"/></svg>
+            <span>Comprar</span>
+        </a>
+        <a href="/quienes" class="bottom-nav-item">
+            <svg viewBox="0 0 640 512"><path d="M72 88a56 56 0 1 1 112 0A56 56 0 1 1 72 88zM64 245.7C54 256.9 48 271.8 48 288s6 31.1 16 42.3V245.7zm144.4-49.3C178.7 222.7 160 261.2 160 304c0 34.3 12 65.8 32 90.5V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V389.2C26.2 371.2 0 332.7 0 288c0-61.9 50.1-112 112-112h32c24 0 46.2 7.5 64.4 20.3zM448 416V394.5c20-24.7 32-56.2 32-90.5c0-42.8-18.7-81.3-48.4-107.7C449.8 183.5 472 176 496 176h32c61.9 0 112 50.1 112 112c0 44.7-26.2 83.2-64 101.2V416c0 17.7-14.3 32-32 32H480c-17.7 0-32-14.3-32-32zm8-328a56 56 0 1 1 112 0A56 56 0 1 1 456 88zM576 245.7v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM320 32a64 64 0 1 1 0 128 64 64 0 1 1 0-128zM240 304c0 16.2 6 31 16 42.3V261.7c-10 11.3-16 26.1-16 42.3zm144-42.3v84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM448 304c0 44.7-26.2 83.2-64 101.2V448c0 17.7-14.3 32-32 32H288c-17.7 0-32-14.3-32-32V405.2c-37.8-18-64-56.5-64-101.2c0-61.9 50.1-112 112-112h32c61.9 0 112 50.1 112 112z" />
+            </svg>
+            <span>Nosotros</span>
+        </a>
+        <a href="/contacto" class="bottom-nav-item">
+            <svg viewBox="0 0 512 512"><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
+            </svg>
+            <span>Contacto</span>
+        </a>
+        <a href="https://wa.me/50500000000" target="_blank" class="bottom-nav-item whatsapp-btn">
+            <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+            </svg>
+            <span>WhatsApp</span>
+        </a>
+    </nav>
 
-   </body>
+    <footer class="footer mt-auto">
+        <div class="container">
+            <ul class="location_icon">
+                <li>
+                    <a href="#" target="_blank">
+                        <svg viewBox="0 0 512 512"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z" /></svg>
+                        <span>Facebook</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" target="_blank">
+                        <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" /></svg>
+                        <span>Whatsapp</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/contacto">
+                        <svg viewBox="0 0 384 512"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" /></svg>
+                        <span>Ubicación</span>
+                    </a>
+                </li>
+            </ul>
+            <p class="mb-0 text-white-50">&copy; Tu Empresa. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/cuenta.js"></script>
+    
+    <script>
+        // Modal de Login
+        document.getElementById('account-btn').addEventListener('click', function() {
+            var modal = document.getElementById('login-modal');
+            modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+        });
+        document.getElementById('closeButton').addEventListener('click', function() {
+            document.getElementById('login-modal').style.display = 'none';
+        });
+
+        // Lógica ROBUSTA del Carrito de Compras (Delegación de Eventos)
+        document.addEventListener("DOMContentLoaded", () => {
+            let cartItems = JSON.parse(localStorage.getItem('miCarrito')) || [];
+
+            const cartContainer = document.getElementById('scrolling');
+            const subtotalElement = document.getElementById('subtotal-price');
+            const itemsNumberBadge = document.getElementById('items-number');
+
+            function renderCart() {
+                cartContainer.innerHTML = ''; 
+                let subtotal = 0;
+                let totalQty = 0;
+
+                if (cartItems.length === 0) {
+                    cartContainer.innerHTML = `
+                        <div style="padding: 50px 20px; text-align: center; color: #888;">
+                            <svg style="height: 60px; fill: #ddd; margin-bottom: 15px;" viewBox="0 0 576 512"><path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24z"/></svg>
+                            <p style="font-size: 16px;">Tu carrito está vacío</p>
+                        </div>`;
+                } else {
+                    cartItems.forEach((producto, index) => {
+                        subtotal += producto.precio * producto.cantidad;
+                        totalQty += producto.cantidad;
+
+                        // Ahora usamos data-index en lugar de onclick directo (más seguro)
+                        cartContainer.innerHTML += `
+                            <div class="cart-item">
+                                <img src="${producto.imagen}" alt="${producto.nombre}">
+                                <div class="cart-item-details">
+                                    <h4 class="cart-item-title">${producto.nombre}</h4>
+                                    <span class="cart-item-price">C$ ${producto.precio.toFixed(2)}</span>
+                                    <div class="cart-qty-controls">
+                                        <button class="cart-qty-btn" data-action="decrease" data-index="${index}">-</button>
+                                        <span>${producto.cantidad}</span>
+                                        <button class="cart-qty-btn" data-action="increase" data-index="${index}">+</button>
+                                    </div>
+                                </div>
+                                <div class="cart-item-remove" data-action="remove" data-index="${index}" title="Eliminar">&times;</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                subtotalElement.innerText = subtotal.toFixed(2);
+                itemsNumberBadge.innerText = totalQty;
+                localStorage.setItem('miCarrito', JSON.stringify(cartItems));
+            }
+
+            // Delegación de eventos para los botones generados dinámicamente
+            cartContainer.addEventListener('click', function(e) {
+                // Si presionó el botón de eliminar
+                if (e.target.closest('.cart-item-remove')) {
+                    const btn = e.target.closest('.cart-item-remove');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    cartItems.splice(index, 1);
+                    renderCart();
+                }
+                
+                // Si presionó los botones de cantidad (+ / -)
+                if (e.target.closest('.cart-qty-btn')) {
+                    const btn = e.target.closest('.cart-qty-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    const action = btn.getAttribute('data-action');
+
+                    if (action === 'increase') {
+                        cartItems[index].cantidad += 1;
+                    } else if (action === 'decrease') {
+                        cartItems[index].cantidad -= 1;
+                        if (cartItems[index].cantidad <= 0) {
+                            cartItems.splice(index, 1); // Lo elimina si llega a 0
+                        }
+                    }
+                    renderCart();
+                }
+            });
+
+            // Apertura y Cierre del carrito lateral
+            const sidecart = document.getElementById('sidecartid');
+            const overlay = document.getElementById('cart-overlay');
+            
+            function openCart() {
+                sidecart.classList.add('open');
+                overlay.classList.add('show');
+                renderCart();
+            }
+
+            function closeCart() {
+                sidecart.classList.remove('open');
+                overlay.classList.remove('show');
+            }
+
+            document.getElementById('cart-icon').addEventListener('click', openCart);
+            document.getElementById('close-btn').addEventListener('click', closeCart);
+            overlay.addEventListener('click', closeCart);
+            document.getElementById('continue').addEventListener('click', closeCart);
+            
+            // Iniciar renderizado
+            renderCart();
+        });
+    </script>
+</body>
 </html>

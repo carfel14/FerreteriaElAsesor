@@ -1,180 +1,610 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Especificaciones del Producto
+{{ product.name }} - Especificaciones
 {% endblock %}
 
 {% block main %}
 <style>
-.product-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0 -10px;
-}
+  /* =========================================
+     DISEÑO E-COMMERCE CON LUPA LATERAL
+  ========================================= */
 
-.product-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 10px; /* Ajusta el valor según tu preferencia */
-  width: 100%;
-}
-
-.product-item {
-  width: calc(33.33% - 20px);
-  margin: 0 10px;
-  margin-bottom: 10px; /* Ajusta el valor según tu preferencia */
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-image img {
-  width: 100%;
-  height: auto;
-  max-height: 150px;
-  object-fit: contain;
-}
-
-.product-name {
-  font-weight: bold;
-}
-
-.product-price {
-  margin-top: auto;
-  margin-bottom: 10px;
-}
-
-.product-buttons {
-  margin-top: auto;
-}
-
-.btn-details-custom,
-.btn-add-to-cart-custom {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: #3C3C3C;
-  color: #FFFFFF;
-  border: 0.5px solid #000000;
-  border-radius: 3px;
-  text-decoration: none;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.btn-details-custom:hover,
-.btn-add-to-cart-custom:hover {
-  background-color: #ECA72C;
-  border: 1px solid #000000;
-  color: #000000;
-}
-
-.btn-add-to-cart-custom:hover svg.hover_cart-custom path {
-    fill: #000000;
+  .container-spec {
+    max-width: 1200px;
+    margin: 15px auto 50px auto; /* Margen superior reducido */
+    padding: 0 20px;
   }
 
-.btn-details-custom:first-child,
-.btn-add-to-cart-custom:first-child {
-  margin-left: 0;
-}
+  /* --- Grid Principal --- */
+  .product-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 50px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
 
+  @media (max-width: 991px) {
+    .product-main-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding: 20px;
+    }
+  }
 
+  /* --- Galería de Imágenes (Miniaturas a la Izquierda) --- */
+  .gallery-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  /* Contenedor de miniaturas vertical */
+  .thumbnails-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80px;
+    max-height: 450px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Oculta scrollbar en Firefox */
+  }
+  .thumbnails-container::-webkit-scrollbar {
+    display: none; /* Oculta scrollbar en Chrome/Safari */
+  }
+
+  .thumbnail {
+    width: 100%;
+    height: 80px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    object-fit: contain;
+    padding: 5px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .thumbnail:hover {
+    border-color: #ccc;
+  }
+
+  .thumbnail.active {
+    border-color: #ECA72C;
+    background-color: #fff;
+  }
+
+  /* Contenedor de imagen principal */
+  .main-image-wrapper {
+    position: relative;
+    flex-grow: 1;
+    height: 450px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-image-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: crosshair;
+  }
+
+  .product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Botones del Carrusel */
+  .carousel-btn {
+    background-color: #3C3C3C;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .carousel-btn:hover {
+    background-color: #ECA72C;
+    color: black;
+  }
+
+  .left-btn { left: -15px; }
+  .right-btn { right: -15px; }
+
+  /* Cuadro de Lupa (Zoom Box) */
+  .zoom-box {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 20px); /* Separación de la imagen principal */
+    width: 450px;
+    height: 450px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    display: none; /* Oculto por defecto */
+    z-index: 1000;
+    pointer-events: none; /* El ratón lo ignora */
+    background-repeat: no-repeat;
+  }
+
+  @media (max-width: 991px) {
+    /* En móviles: miniaturas abajo y desactivar lupa */
+    .gallery-wrapper {
+      flex-direction: column-reverse;
+    }
+    .thumbnails-container {
+      width: 100%;
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    .thumbnail {
+      width: 80px;
+    }
+    .zoom-box { display: none !important; }
+    .left-btn { left: 10px; }
+    .right-btn { right: 10px; }
+  }
+
+  /* --- Información del Producto --- */
+  .product-info-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .product-info-section h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #2b2b2b;
+    line-height: 1.2;
+    margin-bottom: 15px;
+  }
+
+  .product-price-tag {
+    font-size: 30px;
+    font-weight: 900;
+    color: #D3242B;
+    margin-bottom: 30px;
+  }
+
+  /* --- Controles de Compra --- */
+  .purchase-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 48px;
+  }
+
+  .quantity-controls button {
+    width: 40px;
+    height: 100%;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .quantity-controls button:hover {
+    background: #e2e6ea;
+  }
+
+  .quantity-input {
+    width: 50px;
+    height: 100%;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    -moz-appearance: textfield;
+  }
+  .quantity-input::-webkit-outer-spin-button,
+  .quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .cart-button-main {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: #3C3C3C;
+    color: #fff;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    max-width: 250px;
+  }
+
+  .cart-button-main:hover {
+    background-color: #ECA72C;
+    color: black;
+  }
+  
+  .cart-button-main:hover svg {
+      fill: black;
+  }
+
+  /* --- Secciones de Texto y Tablas --- */
+  .section-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2b2b2b;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+  }
+
+  .product-description-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #555;
+  }
+
+  /* Tabla Premium */
+  .espectable {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eaeaea;
+  }
+
+  .espectable th, .espectable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  .espectable th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    width: 30%;
+    color: #333;
+    border-right: 1px solid #eaeaea;
+  }
+
+  .espectable td {
+    color: #555;
+    background-color: #fff;
+  }
+
+  /* --- Productos Relacionados --- */
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .related-item {
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: 0.3s ease;
+  }
+
+  .related-item:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  }
+
+  .related-img {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .related-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .related-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #2b2b2b;
+    margin-bottom: 8px;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .related-price {
+    font-weight: bold;
+    color: #D3242B;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 15px;
+    margin-top: auto;
+  }
+
+  .related-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-related {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+    cursor: pointer;
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-related-view {
+    background-color: #f8f9fa;
+    color: #333;
+  }
+
+  .btn-related-view:hover {
+    background-color: #e0e0e0;
+  }
+
+  .btn-related-add {
+    background-color: #3C3C3C;
+    color: white;
+  }
+
+  .btn-related-add:hover {
+    background-color: #ECA72C;
+    color: black;
+  }
+  .btn-related-add:hover svg { fill: black; }
 </style>
 
 <div class="container-spec">
-  <div class="titlees">
-    <h1>Especificaciones del Producto</h1>
-  </div>
-  <div class="product-specs">
-    <div class="row-1">
-      <div class="product-image-container">
-        <img id="productImg" src="{{ product[6] }}" alt="{{ product[1] }}">
-        <div class="zoom-image-container">
-          <img src="{{ product[6] }}" alt="{{ product[1] }}">
+
+  <div class="product-main-grid">
+    
+    <div class="gallery-wrapper">
+      
+      <div class="thumbnails-container" id="thumbnails">
         </div>
+
+      <div class="main-image-wrapper">
+        <button class="carousel-btn left-btn" onclick="prevImg()">&#10094;</button>
+        
+        <div class="product-image-container" id="imgContainer">
+          <img id="productImg" src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/600?text=Sin+Imagen'">
+          <div id="zoomBox" class="zoom-box"></div>
+        </div>
+
+        <button class="carousel-btn right-btn" onclick="nextImg()">&#10095;</button>
       </div>
+
     </div>
-    <div class="row-2">
-      <div class="product-description">
-        <h2>{{ product[1] }}</h2>
-        <p>Precio: {{ product[3] }}</p>
+
+    <div class="product-info-section">
+      <h1>{{ product.name }}</h1>
+      <div class="product-price-tag">C$ {{ product.price }}</div>
+      
+      <div class="purchase-controls">
         <div class="quantity-controls">
-          <button class="quantity-decrease">-</button>
-          <input type="number" class="quantity-input" value="1" min="1">
-          <button class="quantity-increase">+</button>
+          <button type="button" onclick="document.getElementById('qtyInput').stepDown()">-</button>
+          <input type="number" id="qtyInput" class="quantity-input" value="1" min="1">
+          <button type="button" onclick="document.getElementById('qtyInput').stepUp()">+</button>
         </div>
-        <button class="cart-button">
-          <svg class="hover_cartespec" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-            viewBox="0 0 576 512">
-            <path
-              d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+
+        <button class="cart-button-main">
+          <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="white" viewBox="0 0 576 512" style="transition: fill 0.3s;">
+            <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
           </svg>
-          <span>Agregar al carrito</span>
+          Agregar al carrito
         </button>
       </div>
     </div>
+
   </div>
-  <div class="desc-title">
-    <h2>Descripción</h2>
-    <p>{{ product[4] }}</p>
-  </div>
-  <table class="espectable">
-    <div class="espectable-title">
-      <h2>Especificaciones Técnicas</h2>
+
+  <div class="section-container">
+    <h2 class="section-title">Descripción</h2>
+    <div class="product-description-text">
+      <p>{{ product.description }}</p>
     </div>
-    <thead>
-      <tr>
-        <th>Especificación</th>
-        <th>Valor</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for specification in product_specifications %}
-      <tr>
-        <td>{{ specification.attribute }}</td>
-        <td>{{ specification.value }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  </div>
+  
+  {% if product_specifications %}
+  <div class="section-container">
+    <h2 class="section-title">Especificaciones Técnicas</h2>
+    <div style="overflow-x: auto;">
+      <table class="espectable">
+        <tbody>
+          {% for specification in product_specifications %}
+          <tr>
+            <th>{{ specification.attribute }}</th>
+            <td>{{ specification.value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
 
-
-  <div class="related-products">
-    <h2>Productos relacionados</h2>
-    <div class="product-grid">
-      {% for i in range(0, related_products|length, 3) %}
-      <div class="product-row">
-        {% for product in related_products[i:i+3] %}
-        <div class="product-item">
-          <div class="product-image">
-            <img src="{{ product[6] }}" alt="{{ product[1] }}">
-          </div>
-          <div class="product-details">
-            <div class="product-name">{{ product[1] }}</div>
-            <div class="product-price">Precio: <span>NIO {{ product[3] }}</span></div>
-            <div class="product-buttons">
-              <a href="{{ url_for('product', product_id=product[0]) }}" class="btn-details-custom">Ver detalles</a>
-              <button class="btn-add-to-cart-custom">
-                <svg class="hover_cart-custom" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white"
-                  viewBox="0 0 576 512">
-                  <path
-                    d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-                </svg>
-                <span>Agregar al carrito</span>
-              </button>
-            </div>
-          </div>
+  {% if related_products %}
+  <div class="section-container" style="background: transparent; box-shadow: none; padding: 0;">
+    <h2 class="section-title">Productos Relacionados</h2>
+    <div class="related-grid">
+      {% for rel_product in related_products %}
+      <div class="related-item">
+        <div class="related-img">
+          <img src="{{ rel_product.url }}" alt="{{ rel_product.name }}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
         </div>
-        {% endfor %}
+        <div class="related-title">{{ rel_product.name }}</div>
+        <div class="related-price">C$ {{ rel_product.price }}</div>
+        
+        <div class="related-actions">
+          <a href="{{ url_for('product', product_id=rel_product.id) }}" class="btn-related btn-related-view">Ver detalles</a>
+          <button class="btn-related btn-related-add">
+            <svg xmlns="http://www.w3.org/2000/svg" height="1.1em" fill="currentColor" viewBox="0 0 576 512">
+              <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+            </svg>
+          </button>
+        </div>
       </div>
       {% endfor %}
     </div>
   </div>
+  {% endif %}
+
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="{{ url_for('static', filename='js/scriptlupa.js') }}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    
+    // 1. CARGAR IMÁGENES
+    const images = [
+      "{{ product.url }}",
+      {% for img in extra_images %}
+      "{{ img.image_url }}",
+      {% endfor %}
+    ];
+
+    let currentIndex = 0;
+    const mainImg = document.getElementById("productImg");
+    const thumbnailsContainer = document.getElementById("thumbnails");
+    const carouselBtns = document.querySelectorAll('.carousel-btn');
+
+    // 2. CREAR MINIATURAS (A la izquierda)
+    if (images.length > 1) {
+      images.forEach((src, index) => {
+        const thumb = document.createElement("img");
+        thumb.src = src;
+        thumb.classList.add("thumbnail");
+        if (index === 0) thumb.classList.add("active");
+
+        thumb.addEventListener("click", function() {
+          currentIndex = index;
+          updateGallery();
+        });
+
+        thumbnailsContainer.appendChild(thumb);
+      });
+    } else {
+      thumbnailsContainer.style.display = "none";
+      carouselBtns.forEach(btn => btn.style.display = 'none');
+    }
+
+    // Funciones de flechas
+    window.prevImg = function() {
+      currentIndex = (currentIndex === 0) ? images.length - 1 : currentIndex - 1;
+      updateGallery();
+    }
+
+    window.nextImg = function() {
+      currentIndex = (currentIndex === images.length - 1) ? 0 : currentIndex + 1;
+      updateGallery();
+    }
+
+    function updateGallery() {
+      mainImg.src = images[currentIndex];
+      const thumbs = document.querySelectorAll(".thumbnail");
+      if (thumbs.length > 0) {
+        thumbs.forEach(t => t.classList.remove("active"));
+        thumbs[currentIndex].classList.add("active");
+      }
+    }
+
+    // 3. LÓGICA DE LA LUPA LATERAL (Recuadro a la derecha)
+    const imgContainer = document.getElementById("imgContainer");
+    const zoomBox = document.getElementById("zoomBox");
+
+    imgContainer.addEventListener("mouseenter", function() {
+      // Activar cuadro y poner la misma imagen de fondo
+      zoomBox.style.display = "block";
+      zoomBox.style.backgroundImage = `url('${mainImg.src}')`;
+      zoomBox.style.backgroundSize = "250%"; // Nivel de Zoom
+    });
+
+    imgContainer.addEventListener("mousemove", function(e) {
+      const rect = imgContainer.getBoundingClientRect();
+      
+      // Coordenadas del cursor dentro de la imagen
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Convertir a porcentajes
+      const xPercent = (x / rect.width) * 100;
+      const yPercent = (y / rect.height) * 100;
+      
+      // Mover el fondo de la caja de la derecha
+      zoomBox.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
+    });
+
+    imgContainer.addEventListener("mouseleave", function() {
+      zoomBox.style.display = "none";
+    });
+
+  });
+</script>
+
 {% endblock %}

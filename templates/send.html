@@ -1,156 +1,246 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Send</title>
-        <link rel="stylesheet" href="/static/styles_register.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MACON - Registrar Producto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header-brand {
+            background-color: #2c3e50;
+            padding: 15px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-brand img {
+            max-height: 50px;
+        }
+        .form-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border: none;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+        .preview-img {
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .spec-row {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .btn-custom-primary {
+            background-color: #e67e22;
+            color: white;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-custom-primary:hover {
+            background-color: #d35400;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
 
-    <body>
+<body>
 
-        <div class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <a href="/">
-                        <img src="{{ url_for('static', filename='images/logo4.png') }}" alt="#" />
-                    </a>
+    <div class="header-brand text-center mb-5">
+        <a href="/">
+            <img src="{{ url_for('static', filename='images/logo4.png') }}" alt="MACON Logo" onerror="this.src='https://via.placeholder.com/150x50?text=MACON+LOGO'" />
+        </a>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="card form-card p-4 p-md-5">
+                    <h2 class="text-center mb-4" style="color: #2c3e50; font-weight: 700;">Registrar Nuevo Producto</h2>
+                    
+                    <form action="/send" method="post" enctype="multipart/form-data">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="nombre" placeholder="Ej: Cemento Holcim 42.5" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="price" class="form-label">Precio (C$) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">C$</span>
+                                    <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="category" class="form-label">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-select" name="category" id="category" required>
+                                    <option value="" selected disabled>Seleccione una categoría...</option>
+                                    <option value="1">Herramientas</option>
+                                    <option value="2">Herraje</option>
+                                    <option value="3">Plomería</option>
+                                    <option value="4">Electricidad</option>
+                                    <option value="5">Iluminación</option>
+                                    <option value="6">Grifería</option>
+                                    <option value="7">Pintura</option>
+                                    <option value="8">Hogar</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Descripción Detallada <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describa los usos, materiales y ventajas del producto..." required></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label for="img-uploader" class="form-label">
+                                <i class="bi bi-images text-primary"></i> Imágenes del Producto
+                            </label>
+                            <p class="text-muted small mb-2">Puedes seleccionar múltiples imágenes. La primera será la imagen principal.</p>
+                            <input class="form-control" type="file" name="imagenes_producto" id="img-uploader" accept="image/*" multiple>
+                            
+                            <div id="preview-container" class="d-flex flex-wrap gap-2 mt-3"></div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-list-check text-success"></i> Especificaciones Técnicas</span>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addSpecification()">
+                                    <i class="bi bi-plus-lg"></i> Añadir Atributo
+                                </button>
+                            </label>
+                            <p class="text-muted small mb-3">Ejemplo: "Marca" - "Truper", "Peso" - "50 kg".</p>
+                            
+                            <div id="specifications-container">
+                                </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-custom-primary btn-lg">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Publicar Producto
+                            </button>
+                        </div>
+
+                    </form>
                 </div>
+
             </div>
         </div>
-        <br>
-        <h1>Formulario de ingreso de productos</h1>
-        <div class="form-group">
+    </div>
 
-            <form action="/send" method="post">
-                <input id="url" name="url" hidden>
-                <label for="name">Nombre*:</label>
-                <input type="text" id="name" name="nombre" placeholder="Ingrese el nombre del producto">
-
-                <label for="precio">Precio* (Número con hasta dos decimales):</label>
-                <input type="number" id="price" name="price" step="0.01" min="0" autocomplete="off">
-
-                <label for="stock">Stock* (Número):</label>
-                <input type="number" id="stock" name="stock" min="1" autocomplete="off">
-
-                <br>
-
-                <label for="description">Descripción*:</label>
-                <textarea type="description" id="description" name="description"
-                    placeholder="Ingrese la descripción del producto"> </textarea>
-
-                <label for="category">Categoría</label>
-                <select name="category" id="category">
-                    <option value="1">Herramientas</option>
-                    <option value="2">Herraje</option>
-                    <option value="3">Plomería</option>
-                    <option value="4">Electricidad</option>
-                    <option value="5">Iluminación</option>
-                    <option value="6">Grifería</option>
-                    <option value="7">Pintura</option>
-                    <option value="8">Hogar</option>
-                </select>
-
-                <label for="img-uploader">Imagen</label>
-                <input name="imagen" type="file" class="form-control image-file" id="img-uploader">
-
-                <label>Especificaciones:</label>
-                <div id="specifications-container"></div>
-
-                <button type="button" onclick="addSpecification()">Agregar especificación</button>
-
-                <br><br>
-
-                <div class="buttons">
-                    <button type="submit" class="register-button">Registrar producto</button>
-                </div>
-            </form>
-
-
-        </div>
-
-
-        <script>
-            let specificationCount = 1;
-
-            function addSpecification() {
-                const container = document.getElementById('specifications-container');
-
-                const attributeInput = document.createElement('input');
-                attributeInput.type = 'text';
-                attributeInput.name = 'attribute' + specificationCount;
-                attributeInput.placeholder = 'Nombre de la especificación';
-
-                const valueInput = document.createElement('input');
-                valueInput.type = 'text';
-                valueInput.name = 'value' + specificationCount;
-                valueInput.placeholder = 'Valor de la especificación';
-
-                const specificationDiv = document.createElement('div');
-                specificationDiv.appendChild(attributeInput);
-                specificationDiv.appendChild(valueInput);
-
-                container.appendChild(specificationDiv);
-
-                specificationCount++;
-            }
-        </script>
-
-        <img src="" id="img-muestra">
-
-
-
-        <script>
-            const imgMuestra = document.getElementById('img-muestra');
-            const imageUploader = document.getElementById('img-uploader');
-
-            const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/drbc8csv2/image/upload`;
-            const CLOUDINARY_UPLOAD_PRESET = "cmukqekq";
-            const url = document.getElementById("url");
-
-
-            window.addEventListener('DOMContentLoaded', (event) => {
-                imageUploader.addEventListener('change', async (e) => {
-                    // console.log(e);
-                    const file = e.target.files[0];
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-                    // Send to cloudianry
-                    const res = await axios.post(
-                        CLOUDINARY_URL,
-                        formData,
-                        {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            },
-                        }
-                    )
-                        // .then((response) => {
-                        //         console.log(response.data)
-                        //     })
-                        ;
-                    console.log(res);
-                    url.value = res.data.url;
-                    $("#img-muestra").attr("src", url.value);
-                });
-            });
-
-
-        </script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-            crossorigin="anonymous"></script>
-    </body>
-    <footer>
-        <p>© 2023 Todos los derechos reservados</p>
+    <footer class="text-center py-4 text-muted">
+        <p class="mb-0">© 2026 Ferretería MACON. Todos los derechos reservados.</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 1. Lógica para la vista previa de MÚLTIPLES imágenes
+        const imageUploader = document.getElementById('img-uploader');
+        const previewContainer = document.getElementById('preview-container');
+
+        imageUploader.addEventListener('change', function(e) {
+            previewContainer.innerHTML = ''; // Limpiar vistas previas anteriores
+            const files = e.target.files;
+
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.classList.add('preview-img');
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        // 2. Lógica mejorada para agregar especificaciones dinámicas
+        let specificationCount = 1;
+
+        function addSpecification() {
+            const container = document.getElementById('specifications-container');
+
+            // Crear el div contenedor de la fila
+            const rowDiv = document.createElement('div');
+            rowDiv.classList.add('row', 'spec-row', 'align-items-center');
+            rowDiv.id = `spec-row-${specificationCount}`;
+
+            // Columna Atributo
+            const colAttr = document.createElement('div');
+            colAttr.classList.add('col-md-5', 'mb-2', 'mb-md-0');
+            const attributeInput = document.createElement('input');
+            attributeInput.type = 'text';
+            attributeInput.classList.add('form-control');
+            attributeInput.name = 'attribute' + specificationCount;
+            attributeInput.placeholder = 'Ej: Marca';
+            attributeInput.required = true;
+            colAttr.appendChild(attributeInput);
+
+            // Columna Valor
+            const colVal = document.createElement('div');
+            colVal.classList.add('col-md-5', 'mb-2', 'mb-md-0');
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.classList.add('form-control');
+            valueInput.name = 'value' + specificationCount;
+            valueInput.placeholder = 'Ej: Truper';
+            valueInput.required = true;
+            colVal.appendChild(valueInput);
+
+            // Columna Botón Eliminar
+            const colBtn = document.createElement('div');
+            colBtn.classList.add('col-md-2', 'text-end');
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.classList.add('btn', 'btn-outline-danger', 'btn-sm', 'w-100');
+            deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+            deleteBtn.onclick = function() {
+                container.removeChild(rowDiv);
+            };
+            colBtn.appendChild(deleteBtn);
+
+            // Ensamblar la fila
+            rowDiv.appendChild(colAttr);
+            rowDiv.appendChild(colVal);
+            rowDiv.appendChild(colBtn);
+
+            container.appendChild(rowDiv);
+            specificationCount++;
+        }
+
+        // Agregar una especificación vacía por defecto al cargar la página
+        window.onload = function() {
+            addSpecification();
+        };
+    </script>
+</body>
 </html>
