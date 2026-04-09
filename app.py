@@ -11,6 +11,9 @@ from flask_mail import Mail, Message
 from dotenv import load_dotenv
 from PIL import Image
 from supabase import create_client, Client
+from flask import jsonify
+import unicodedata
+import re
 
 # 1. Cargar las variables de entorno
 load_dotenv()
@@ -380,32 +383,149 @@ def products_by_category(category_id, page=1):
 @app.route('/search', defaults={'page': 1})
 @app.route('/search/<int:page>')
 def search(page=1):
-    texto_busqueda = request.args.get('texto_busqueda', '')
+    texto_busqueda = request.args.get('texto_busqueda', '').strip()
     products_per_page = 12 
     start_index = (page - 1) * products_per_page
 
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    cursor.execute("SELECT * FROM products WHERE name LIKE %s LIMIT %s OFFSET %s", 
-                   ('%' + texto_busqueda + '%', products_per_page, start_index))
-    resultados = cursor.fetchall()
+    resultados = []
+    otros_productos = []
+    total_products = 0
 
-    cursor.execute("SELECT COUNT(*) AS count FROM products WHERE name LIKE %s", 
-                   ('%' + texto_busqueda + '%',))
-    total_products = cursor.fetchone()["count"]
+    if texto_busqueda:
+        # 1. Buscar coincidencias exactas
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE name ILIKE %s OR description ILIKE %s 
+            LIMIT %s OFFSET %s
+        """, (f'%{texto_busqueda}%', f'%{texto_busqueda}%', products_per_page, start_index))
+        resultados = cursor.fetchall()
+
+        # 2. Contar SOLO las coincidencias exactas (Paginación Estricta)
+        cursor.execute("""
+            SELECT COUNT(*) AS count FROM products 
+            WHERE name ILIKE %s OR description ILIKE %s
+        """, (f'%{texto_busqueda}%', f'%{texto_busqueda}%'))
+        total_products = cursor.fetchone()["count"]
+    else:
+        # Si entran al buscador sin texto, mostramos todo el catálogo
+        cursor.execute("SELECT * FROM products LIMIT %s OFFSET %s", (products_per_page, start_index))
+        resultados = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) AS count FROM products")
+        total_products = cursor.fetchone()["count"]
+
+    # 3. Lógica de relleno: Si en esta página exacta hay menos de 12 ítems, rellenamos
+    if len(resultados) < products_per_page:
+        faltantes = products_per_page - len(resultados)
+        
+        if resultados:
+            ids_excluir = tuple([p['id'] for p in resultados])
+            cursor.execute("""
+                SELECT * FROM products 
+                WHERE id NOT IN %s 
+                ORDER BY RANDOM() LIMIT %s
+            """, (ids_excluir, faltantes))
+        else:
+            cursor.execute("SELECT * FROM products ORDER BY RANDOM() LIMIT %s", (faltantes,))
+            
+        otros_productos = cursor.fetchall()
+
+    # 4. Cálculo final de páginas (Forzamos mínimo 1 página para no romper la UI visualmente)
     total_pages = (total_products // products_per_page) + (total_products % products_per_page > 0)
+    if total_pages == 0:
+        total_pages = 1
 
     conn.close()
 
     user_logged_in = "user_id" in session
     user_name = get_user_name(session.get("user_id"))
 
-    return render_template('search.html', resultados=resultados, total_pages=total_pages, current_page=page, user_logged_in=user_logged_in, user_name=user_name)
+    return render_template('search.html', 
+                           resultados=resultados,
+                           otros_productos=otros_productos,
+                           total_pages=total_pages, 
+                           current_page=page, 
+                           user_logged_in=user_logged_in, 
+                           user_name=user_name,
+                           texto_busqueda=texto_busqueda)
+
+
 
 @app.route('/confirm', methods=["GET", "POST"])
 def confirm():
     return render_template('confirm.html')
+
+
+
+def normalizar_para_busqueda(texto):
+    """Normaliza el texto para búsquedas insensibles a tildes, mayúsculas y caracteres especiales"""
+    if not texto: 
+        return ""
+    texto = str(texto).lower()
+    texto = unicodedata.normalize('NFKD', texto).encode('ASCII', 'ignore').decode('utf-8')
+    texto = texto.replace('*', 'x')
+    texto = re.sub(r'[^a-z0-9]', '', texto)
+    return texto
+
+@app.route('/api/productos/buscar_instantaneo')
+def buscar_productos_instantaneo():
+    """Búsqueda en tiempo real flexible para el menú desplegable del cliente"""
+    try:
+        query_raw = request.args.get('q', '').strip()
+        
+        # Si hay menos de 2 caracteres, no buscamos para ahorrar recursos
+        if len(query_raw) < 2:
+            return jsonify({'success': True, 'productos': []})
+
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Traemos todos los productos (Si tu base crece mucho, esto se puede optimizar directo en SQL)
+        cursor.execute("SELECT * FROM products")
+        productos_db = cursor.fetchall()
+        conn.close()
+
+        resultados = []
+        terminos_busqueda = query_raw.split()
+        terminos_normalizados = [normalizar_para_busqueda(t) for t in terminos_busqueda]
+
+        for p in productos_db:
+            # Creamos la 'huella' del producto sumando nombre y descripción
+            info_producto = f"{p['name']} {p.get('description', '')}"
+            info_producto_norm = normalizar_para_busqueda(info_producto)
+
+            # Verificamos si todos los términos buscados están en la huella del producto
+            coincide = True
+            for termino in terminos_normalizados:
+                if termino not in info_producto_norm:
+                    coincide = False
+                    break
+
+            if coincide:
+                resultados.append({
+                    'id': p['id'],
+                    'nombre': p['name'],
+                    'precio': float(p['price']) if p['price'] else 0.0, 
+                    'imagen': p['url']
+                })
+
+        # Ordenar alfabéticamente y limitar a 10 resultados para no saturar la vista
+        resultados.sort(key=lambda x: x['nombre'])
+        resultados = resultados[:10]
+
+        return jsonify({
+            'success': True,
+            'productos': resultados
+        })
+
+    except Exception as e:
+        print(f"Error en búsqueda instantánea: {e}")
+        return jsonify({'success': False, 'productos': [], 'message': str(e)})
+
+
+
 
 if __name__ == '__main__':
     # host='0.0.0.0' expone la app a tu red local

@@ -12,7 +12,7 @@
 
   .container-spec {
     max-width: 1200px;
-    margin: 15px auto 50px auto; /* Margen superior reducido */
+    margin: 15px auto 50px auto; 
     padding: 0 20px;
   }
 
@@ -44,7 +44,6 @@
     position: relative;
   }
 
-  /* Contenedor de miniaturas vertical */
   .thumbnails-container {
     display: flex;
     flex-direction: column;
@@ -52,10 +51,10 @@
     width: 80px;
     max-height: 450px;
     overflow-y: auto;
-    scrollbar-width: none; /* Oculta scrollbar en Firefox */
+    scrollbar-width: none; 
   }
   .thumbnails-container::-webkit-scrollbar {
-    display: none; /* Oculta scrollbar en Chrome/Safari */
+    display: none; 
   }
 
   .thumbnail {
@@ -80,7 +79,6 @@
     background-color: #fff;
   }
 
-  /* Contenedor de imagen principal */
   .main-image-wrapper {
     position: relative;
     flex-grow: 1;
@@ -106,7 +104,6 @@
     object-fit: contain;
   }
 
-  /* Botones del Carrusel */
   .carousel-btn {
     background-color: #3C3C3C;
     color: white;
@@ -135,37 +132,26 @@
   .left-btn { left: -15px; }
   .right-btn { right: -15px; }
 
-  /* Cuadro de Lupa (Zoom Box) */
   .zoom-box {
     position: absolute;
     top: 0;
-    left: calc(100% + 20px); /* Separación de la imagen principal */
+    left: calc(100% + 20px); 
     width: 450px;
     height: 450px;
     background-color: #fff;
     border: 1px solid #ddd;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     border-radius: 12px;
-    display: none; /* Oculto por defecto */
+    display: none; 
     z-index: 1000;
-    pointer-events: none; /* El ratón lo ignora */
+    pointer-events: none; 
     background-repeat: no-repeat;
   }
 
   @media (max-width: 991px) {
-    /* En móviles: miniaturas abajo y desactivar lupa */
-    .gallery-wrapper {
-      flex-direction: column-reverse;
-    }
-    .thumbnails-container {
-      width: 100%;
-      flex-direction: row;
-      overflow-x: auto;
-      overflow-y: hidden;
-    }
-    .thumbnail {
-      width: 80px;
-    }
+    .gallery-wrapper { flex-direction: column-reverse; }
+    .thumbnails-container { width: 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden; }
+    .thumbnail { width: 80px; }
     .zoom-box { display: none !important; }
     .left-btn { left: 10px; }
     .right-btn { right: 10px; }
@@ -223,9 +209,7 @@
     transition: background 0.2s;
   }
 
-  .quantity-controls button:hover {
-    background: #e2e6ea;
-  }
+  .quantity-controls button:hover { background: #e2e6ea; }
 
   .quantity-input {
     width: 50px;
@@ -266,10 +250,7 @@
     background-color: #ECA72C;
     color: black;
   }
-  
-  .cart-button-main:hover svg {
-      fill: black;
-  }
+  .cart-button-main:hover svg { fill: black; }
 
   /* --- Secciones de Texto y Tablas --- */
   .section-container {
@@ -289,11 +270,7 @@
     padding-bottom: 10px;
   }
 
-  .product-description-text {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #555;
-  }
+  .product-description-text { font-size: 16px; line-height: 1.8; color: #555; }
 
   /* Tabla Premium */
   .espectable {
@@ -303,25 +280,9 @@
     overflow: hidden;
     border: 1px solid #eaeaea;
   }
-
-  .espectable th, .espectable td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
-  }
-
-  .espectable th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-    width: 30%;
-    color: #333;
-    border-right: 1px solid #eaeaea;
-  }
-
-  .espectable td {
-    color: #555;
-    background-color: #fff;
-  }
+  .espectable th, .espectable td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eaeaea; }
+  .espectable th { background-color: #f4f4f4; font-weight: bold; width: 30%; color: #333; border-right: 1px solid #eaeaea; }
+  .espectable td { color: #555; background-color: #fff; }
 
   /* --- Productos Relacionados --- */
   .related-grid {
@@ -338,10 +299,21 @@
     display: flex;
     flex-direction: column;
     transition: 0.3s ease;
+    position: relative;
+    overflow: hidden;
   }
 
-  .related-item:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  .related-item:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+
+  /* Capa invisible para hacer toda la tarjeta clickeable */
+  .product-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    cursor: pointer;
   }
 
   .related-img {
@@ -351,12 +323,7 @@
     justify-content: center;
     margin-bottom: 15px;
   }
-
-  .related-img img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
+  .related-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   .related-title {
     font-weight: bold;
@@ -379,15 +346,12 @@
     margin-top: auto;
   }
 
-  .related-actions {
-    display: flex;
-    gap: 10px;
-  }
+  .related-actions { display: flex; gap: 10px; }
 
   .btn-related {
     flex: 1;
     text-align: center;
-    padding: 8px;
+    padding: 10px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: bold;
@@ -398,27 +362,39 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 2; /* Esto asegura que el botón quede por encima del enlace invisible de la tarjeta */
   }
 
-  .btn-related-view {
-    background-color: #f8f9fa;
-    color: #333;
-  }
-
-  .btn-related-view:hover {
-    background-color: #e0e0e0;
-  }
-
-  .btn-related-add {
-    background-color: #3C3C3C;
-    color: white;
-  }
-
-  .btn-related-add:hover {
-    background-color: #ECA72C;
-    color: black;
-  }
+  .btn-related-add { background-color: #3C3C3C; color: white; }
+  .btn-related-add:hover { background-color: #ECA72C; color: black; }
   .btn-related-add:hover svg { fill: black; }
+
+  /* --- ESTILOS DE LA NOTIFICACIÓN TOAST --- */
+  .toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background-color: #C06A0A;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .toast-notification.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .toast-close { cursor: pointer; font-size: 18px; font-weight: normal; color: rgba(255,255,255,0.8); transition: color 0.2s; line-height: 1; }
+  .toast-close:hover { color: white; }
+
 </style>
 
 <div class="container-spec">
@@ -426,21 +402,16 @@
   <div class="product-main-grid">
     
     <div class="gallery-wrapper">
-      
-      <div class="thumbnails-container" id="thumbnails">
-        </div>
+      <div class="thumbnails-container" id="thumbnails"></div>
 
       <div class="main-image-wrapper">
         <button class="carousel-btn left-btn" onclick="prevImg()">&#10094;</button>
-        
         <div class="product-image-container" id="imgContainer">
           <img id="productImg" src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/600?text=Sin+Imagen'">
           <div id="zoomBox" class="zoom-box"></div>
         </div>
-
         <button class="carousel-btn right-btn" onclick="nextImg()">&#10095;</button>
       </div>
-
     </div>
 
     <div class="product-info-section">
@@ -454,8 +425,12 @@
           <button type="button" onclick="document.getElementById('qtyInput').stepUp()">+</button>
         </div>
 
-        <button class="cart-button-main">
-          <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="white" viewBox="0 0 576 512" style="transition: fill 0.3s;">
+        <button class="cart-button-main" id="addMainToCart"
+                data-id="{{ product.id }}" 
+                data-name="{{ product.name }}" 
+                data-price="{{ product.price }}" 
+                data-image="{{ product.url }}">
+          <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512" style="transition: fill 0.3s;">
             <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
           </svg>
           Agregar al carrito
@@ -496,6 +471,9 @@
     <div class="related-grid">
       {% for rel_product in related_products %}
       <div class="related-item">
+        
+        <a href="{{ url_for('product', product_id=rel_product.id) }}" class="product-link-overlay" title="Ver detalles"></a>
+
         <div class="related-img">
           <img src="{{ rel_product.url }}" alt="{{ rel_product.name }}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
         </div>
@@ -503,11 +481,15 @@
         <div class="related-price">C$ {{ rel_product.price }}</div>
         
         <div class="related-actions">
-          <a href="{{ url_for('product', product_id=rel_product.id) }}" class="btn-related btn-related-view">Ver detalles</a>
-          <button class="btn-related btn-related-add">
-            <svg xmlns="http://www.w3.org/2000/svg" height="1.1em" fill="currentColor" viewBox="0 0 576 512">
+          <button class="btn-related btn-related-add btn-add-related"
+                  data-id="{{ rel_product.id }}" 
+                  data-name="{{ rel_product.name }}" 
+                  data-price="{{ rel_product.price }}" 
+                  data-image="{{ rel_product.url }}">
+            <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
               <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
             </svg>
+            <span style="margin-left: 8px;">Agregar al carrito</span>
           </button>
         </div>
       </div>
@@ -518,10 +500,89 @@
 
 </div>
 
+<div class="toast-notification" id="cart-toast">
+    <span>Ítem agregado al carrito</span>
+    <span class="toast-close" id="toast-close-btn">&times;</span>
+</div>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     
-    // 1. CARGAR IMÁGENES
+    // --- 1. LÓGICA DEL CARRITO ---
+    const toast = document.getElementById('cart-toast');
+    const toastCloseBtn = document.getElementById('toast-close-btn');
+    let toastTimeout;
+
+    function showToast() {
+        toast.classList.add('show');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    toastCloseBtn.addEventListener('click', () => {
+        toast.classList.remove('show');
+        if (toastTimeout) clearTimeout(toastTimeout);
+    });
+
+    // Función global para agregar productos a localStorage
+    function agregarProductoAlCarrito(productoData) {
+        let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
+        const existingProduct = cart.find(p => p.id == productoData.id);
+
+        if (existingProduct) {
+            existingProduct.cantidad += productoData.cantidad;
+        } else {
+            cart.push(productoData);
+        }
+
+        localStorage.setItem('miCarrito', JSON.stringify(cart));
+
+        if (typeof window.renderCart === 'function') {
+            window.renderCart();
+        }
+        showToast();
+    }
+
+    // Evento para el botón principal (lee la cantidad del input)
+    const btnAddMain = document.getElementById('addMainToCart');
+    if (btnAddMain) {
+        btnAddMain.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Obtenemos la cantidad elegida por el usuario
+            let qty = parseInt(document.getElementById('qtyInput').value);
+            if (isNaN(qty) || qty < 1) qty = 1;
+
+            const product = {
+                id: this.dataset.id,
+                nombre: this.dataset.name,
+                precio: parseFloat(this.dataset.price),
+                imagen: this.dataset.image,
+                cantidad: qty
+            };
+            agregarProductoAlCarrito(product);
+        });
+    }
+
+    // Eventos para los botones de productos relacionados (siempre agregan 1)
+    const btnRelatedAdd = document.querySelectorAll('.btn-add-related');
+    btnRelatedAdd.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Evita que se dispare el enlace del overlay
+
+            const product = {
+                id: this.dataset.id,
+                nombre: this.dataset.name,
+                precio: parseFloat(this.dataset.price),
+                imagen: this.dataset.image,
+                cantidad: 1
+            };
+            agregarProductoAlCarrito(product);
+        });
+    });
+
+
+    // --- 2. LÓGICA DE GALERÍA E IMÁGENES ---
     const images = [
       "{{ product.url }}",
       {% for img in extra_images %}
@@ -534,7 +595,6 @@
     const thumbnailsContainer = document.getElementById("thumbnails");
     const carouselBtns = document.querySelectorAll('.carousel-btn');
 
-    // 2. CREAR MINIATURAS (A la izquierda)
     if (images.length > 1) {
       images.forEach((src, index) => {
         const thumb = document.createElement("img");
@@ -554,7 +614,6 @@
       carouselBtns.forEach(btn => btn.style.display = 'none');
     }
 
-    // Funciones de flechas
     window.prevImg = function() {
       currentIndex = (currentIndex === 0) ? images.length - 1 : currentIndex - 1;
       updateGallery();
@@ -574,29 +633,24 @@
       }
     }
 
-    // 3. LÓGICA DE LA LUPA LATERAL (Recuadro a la derecha)
+    // --- 3. LÓGICA DE LA LUPA LATERAL ---
     const imgContainer = document.getElementById("imgContainer");
     const zoomBox = document.getElementById("zoomBox");
 
     imgContainer.addEventListener("mouseenter", function() {
-      // Activar cuadro y poner la misma imagen de fondo
       zoomBox.style.display = "block";
       zoomBox.style.backgroundImage = `url('${mainImg.src}')`;
-      zoomBox.style.backgroundSize = "250%"; // Nivel de Zoom
+      zoomBox.style.backgroundSize = "250%"; 
     });
 
     imgContainer.addEventListener("mousemove", function(e) {
       const rect = imgContainer.getBoundingClientRect();
-      
-      // Coordenadas del cursor dentro de la imagen
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      // Convertir a porcentajes
       const xPercent = (x / rect.width) * 100;
       const yPercent = (y / rect.height) * 100;
       
-      // Mover el fondo de la caja de la derecha
       zoomBox.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
     });
 

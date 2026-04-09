@@ -1,87 +1,484 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Busqueda
+Búsqueda de Productos
 {% endblock %}
 
 {% block main %}
-<h1 style="margin-top: 10px;">Resultados de la busqueda</h1>
+<style>
+  /* =========================================
+     DISEÑO DEL CATÁLOGO DE PRODUCTOS (Reutilizado)
+  ========================================= */
 
-<div class="pagination top-pagination">
-  {% if current_page > 1 %}
-      <a href="{{ url_for('search', page=current_page-1) }}" class="page-link arrow">&lt;</a>
-  {% else %}
-      <span class="page-link arrow disabled">&lt;</span>
-  {% endif %}
+  .catalog-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
 
-  {% for page in range(1, total_pages + 1) %}
-      {% if page == current_page %}
-          <a href="{{ url_for('search', page=page) }}" class="page-link active">{{ page }}</a>
-      {% else %}
-          <a href="{{ url_for('search', page=page) }}" class="page-link">{{ page }}</a>
+  .catalog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ECA72C;
+    padding-bottom: 10px; 
+    margin-bottom: 10px; 
+  }
+
+  .catalog-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #2b2b2b;
+    margin: 0;
+  }
+  
+  .catalog-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+  }
+
+  .section-divider {
+    margin-top: 50px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+  }
+
+  .section-divider h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #444;
+    margin: 0;
+  }
+
+  /* --- Paginación Premium --- */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .top-pagination { margin: 10px 0 25px 0; }
+  .bottom-pagination { margin: 40px 0; }
+
+  .page-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    position: relative;
+    z-index: 10;
+  }
+
+  .page-link:hover:not(.disabled) {
+    background: #ECA72C;
+    border-color: #ECA72C;
+    color: #000;
+    transform: translateY(-2px);
+  }
+
+  .page-link.active {
+    background: #D3242B;
+    border-color: #D3242B;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(211, 36, 43, 0.3);
+  }
+
+  .page-link.disabled {
+    background: #f8f9fa;
+    color: #ccc;
+    border-color: #f1f1f1;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* --- Cuadrícula de Productos (Grid) --- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+  }
+
+  /* --- Tarjeta de Producto (Card) --- */
+  .product {
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    border-color: transparent;
+  }
+
+  .product-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .product-image {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fdfdfd;
+    border-radius: 10px;
+  }
+
+  .product-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .product:hover .product-image img {
+    transform: scale(1.08);
+  }
+
+  .product-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; 
+  }
+
+  .product-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #2b2b2b;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-transform: capitalize;
+  }
+
+  .product-price {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    margin-top: auto; 
+  }
+
+  .product-price span {
+    font-size: 20px;
+    font-weight: 900;
+    color: #D3242B;
+    display: block;
+    margin-top: 5px;
+  }
+
+  .product-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+  }
+
+  .btn-add-to-cart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 5px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    background-color: #2b2b2b; 
+    color: #fff; 
+    position: relative;
+    z-index: 2; 
+  }
+
+  .btn-add-to-cart:hover {
+    background-color: #ECA72C; 
+    color: #000;
+  }
+
+  .toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background-color: #C06A0A;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toast-close {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: normal;
+    color: rgba(255,255,255,0.8);
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .toast-close:hover {
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .catalog-container { margin-top: 15px; }
+    .catalog-title { font-size: 24px; text-align: center; width: 100%; }
+    .catalog-header { justify-content: center; flex-direction: column; margin-bottom: 5px; padding-bottom: 8px; }
+    .top-pagination { margin: 8px 0 15px 0; }
+    .page-link { min-width: 35px; height: 35px; font-size: 13px; }
+    
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .product { padding: 15px; }
+    .product-image { height: 150px; }
+    .product-buttons { flex-direction: column; }
+
+    .btn-add-to-cart {
+      padding: 10px 5px;
+      font-size: 12px;
+      gap: 5px;
+      white-space: nowrap; 
+    }
+
+    .toast-notification {
+        bottom: 95px;
+        left: 50%;
+        transform: translate(-50%, 100px);
+        width: 90%;
+        max-width: 350px;
+        justify-content: space-between;
+    }
+    .toast-notification.show {
+        transform: translate(-50%, 0);
+    }
+  }
+</style>
+
+<div class="catalog-container">
+
+  <div class="catalog-header">
+    <div>
+      <h1 class="catalog-title">Resultados de Búsqueda</h1>
+      {% if texto_busqueda %}
+        <p class="catalog-subtitle">Buscando: <strong>"{{ texto_busqueda }}"</strong></p>
       {% endif %}
-  {% endfor %}
-
-  {% if current_page < total_pages %}
-      <a href="{{ url_for('search', page=current_page+1) }}" class="page-link arrow">&gt;</a>
-  {% else %}
-      <span class="page-link arrow disabled">&gt;</span>
-  {% endif %}
-</div>
-
-<div class="product-grid">
-  {% if resultados %}
-  {% for product in resultados %}
-  <div class="product">
-    <div class="product-image">
-      <img src="{{ product[6] }}" alt="{{ product[1] }}">
-    </div>
-    <div class="product-details">
-      <div class="product-name">{{ product[1] }}</div>
-      <div class="product-price">Precio: <span>NIO {{ product[3] }}</span></div>
-      <div class="product-buttons">
-        <a href="{{ url_for('product', product_id=product[0]) }}" class="btn-details">Ver detalles</a>
-        <button class="btn-add-to-cart">
-          <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.3em" fill="white" viewBox="0 0 576 512">
-            <path
-              d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-          </svg>
-          <span>Agregar al carrito</span>
-        </button>
-      </div>
     </div>
   </div>
-  {% endfor %}
-  {% else %}
-  <p>No se encontraron resultados.</p>
-  {% endif %}
-</div>
-<div class="pagination bottom-pagination">
-  {% if current_page > 1 %}
-      <a href="{{ url_for('search', page=current_page-1) }}" class="page-link arrow">&lt;</a>
-  {% else %}
+  
+  <div class="pagination-container top-pagination">
+    {% if current_page > 1 %}
+      <a href="{{ url_for('search', page=current_page-1, texto_busqueda=texto_busqueda) }}" class="page-link arrow">&lt;</a>
+    {% else %}
       <span class="page-link arrow disabled">&lt;</span>
-  {% endif %}
+    {% endif %}
 
-  {% for page in range(1, total_pages + 1) %}
+    {% for page in range(1, total_pages + 1) %}
       {% if page == current_page %}
-          <a href="{{ url_for('search', page=page) }}" class="page-link active">{{ page }}</a>
+        <a href="{{ url_for('search', page=page, texto_busqueda=texto_busqueda) }}" class="page-link active">{{ page }}</a>
       {% else %}
-          <a href="{{ url_for('search', page=page) }}" class="page-link">{{ page }}</a>
+        <a href="{{ url_for('search', page=page, texto_busqueda=texto_busqueda) }}" class="page-link">{{ page }}</a>
       {% endif %}
-  {% endfor %}
+    {% endfor %}
 
-  {% if current_page < total_pages %}
-      <a href="{{ url_for('search', page=current_page+1) }}" class="page-link arrow">&gt;</a>
-  {% else %}
+    {% if current_page < total_pages %}
+      <a href="{{ url_for('search', page=current_page+1, texto_busqueda=texto_busqueda) }}" class="page-link arrow">&gt;</a>
+    {% else %}
       <span class="page-link arrow disabled">&gt;</span>
+    {% endif %}
+  </div>
+
+  <div class="product-grid">
+    {% for product in resultados %}
+    <div class="product">
+      <a href="{{ url_for('product', product_id=product.id) }}" class="product-link-overlay" title="Ver detalles del producto"></a>
+      <div class="product-image">
+        <img src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
+      </div>
+      <div class="product-details">
+        <div class="product-name" title="{{ product.name }}">{{ product.name }}</div>
+        <div class="product-price">Precio: <span>C$ {{ product.price }}</span></div>
+        <div class="product-buttons">
+          <button class="btn-add-to-cart" 
+                  data-id="{{ product.id }}" 
+                  data-name="{{ product.name }}" 
+                  data-price="{{ product.price }}" 
+                  data-image="{{ product.url }}">
+            <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
+              <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+            </svg>
+            <span>Añadir al carrito</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div style="grid-column: 1 / -1; padding: 20px 0;">
+        <p style="color: #666; font-size: 16px;">No se encontraron coincidencias exactas para tu búsqueda.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if otros_productos %}
+  <div class="section-divider">
+    <h2>Otros productos recomendados</h2>
+  </div>
+
+  <div class="product-grid">
+    {% for product in otros_productos %}
+    <div class="product">
+      <a href="{{ url_for('product', product_id=product.id) }}" class="product-link-overlay" title="Ver detalles del producto"></a>
+      <div class="product-image">
+        <img src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
+      </div>
+      <div class="product-details">
+        <div class="product-name" title="{{ product.name }}">{{ product.name }}</div>
+        <div class="product-price">Precio: <span>C$ {{ product.price }}</span></div>
+        <div class="product-buttons">
+          <button class="btn-add-to-cart" 
+                  data-id="{{ product.id }}" 
+                  data-name="{{ product.name }}" 
+                  data-price="{{ product.price }}" 
+                  data-image="{{ product.url }}">
+            <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
+              <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+            </svg>
+            <span>Añadir al carrito</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% endif %}
+
+  <div class="pagination-container bottom-pagination">
+    {% if current_page > 1 %}
+      <a href="{{ url_for('search', page=current_page-1, texto_busqueda=texto_busqueda) }}" class="page-link arrow">&lt;</a>
+    {% else %}
+      <span class="page-link arrow disabled">&lt;</span>
+    {% endif %}
+
+    {% for page in range(1, total_pages + 1) %}
+      {% if page == current_page %}
+        <a href="{{ url_for('search', page=page, texto_busqueda=texto_busqueda) }}" class="page-link active">{{ page }}</a>
+      {% else %}
+        <a href="{{ url_for('search', page=page, texto_busqueda=texto_busqueda) }}" class="page-link">{{ page }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages %}
+      <a href="{{ url_for('search', page=current_page+1, texto_busqueda=texto_busqueda) }}" class="page-link arrow">&gt;</a>
+    {% else %}
+      <span class="page-link arrow disabled">&gt;</span>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="toast-notification" id="cart-toast">
+    <span>Ítem agregado al carrito</span>
+    <span class="toast-close" id="toast-close-btn">&times;</span>
 </div>
 
 <script>
-  product_list = {{ resultados|tojson|safe}};
-</script>
+  document.addEventListener('DOMContentLoaded', () => {
+      const addButtons = document.querySelectorAll('.btn-add-to-cart');
+      const toast = document.getElementById('cart-toast');
+      const toastCloseBtn = document.getElementById('toast-close-btn');
+      let toastTimeout;
 
-<script src="/static/js/cart_products.js"></script>
+      function showToast() {
+          toast.classList.add('show');
+          if (toastTimeout) clearTimeout(toastTimeout);
+          toastTimeout = setTimeout(() => {
+              toast.classList.remove('show');
+          }, 3000);
+      }
+
+      toastCloseBtn.addEventListener('click', () => {
+          toast.classList.remove('show');
+          if (toastTimeout) clearTimeout(toastTimeout);
+      });
+
+      addButtons.forEach(btn => {
+          btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+
+              const product = {
+                  id: this.dataset.id,
+                  nombre: this.dataset.name,
+                  precio: parseFloat(this.dataset.price),
+                  imagen: this.dataset.image,
+                  cantidad: 1
+              };
+
+              let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
+              const existingProduct = cart.find(p => p.id == product.id);
+
+              if (existingProduct) {
+                  existingProduct.cantidad += 1;
+              } else {
+                  cart.push(product);
+              }
+
+              localStorage.setItem('miCarrito', JSON.stringify(cart));
+
+              if (typeof window.renderCart === 'function') {
+                  window.renderCart();
+              }
+              showToast();
+          });
+      });
+  });
+</script>
 
 {% endblock %}

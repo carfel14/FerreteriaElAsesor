@@ -12,7 +12,7 @@ Catálogo de Productos
 
   .catalog-container {
     max-width: 1200px;
-    margin: 40px auto;
+    margin: 30px auto;
     padding: 0 20px;
   }
 
@@ -21,8 +21,8 @@ Catálogo de Productos
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #ECA72C;
-    padding-bottom: 15px;
-    margin-bottom: 30px;
+    padding-bottom: 10px; 
+    margin-bottom: 10px; 
   }
 
   .catalog-title {
@@ -38,25 +38,29 @@ Catálogo de Productos
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin: 40px 0;
   }
+  
+  .top-pagination { margin: 10px 0 25px 0; }
+  .bottom-pagination { margin: 40px 0; }
 
   .page-link {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    min-width: 42px;
-    height: 42px;
+    min-width: 40px;
+    height: 40px;
     padding: 0 12px;
     background: #fff;
     border: 1px solid #eaeaea;
-    border-radius: 10px;
+    border-radius: 8px;
     color: #333;
     text-decoration: none;
     font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    transition: all 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    position: relative;
+    z-index: 10;
   }
 
   .page-link:hover:not(.disabled) {
@@ -107,6 +111,17 @@ Catálogo de Productos
     border-color: transparent;
   }
 
+  /* --- Enlace invisible que hace clickeable toda la tarjeta --- */
+  .product-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    cursor: pointer;
+  }
+
   .product-image {
     height: 200px;
     display: flex;
@@ -132,7 +147,7 @@ Catálogo de Productos
   .product-details {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Empuja los botones hacia abajo */
+    flex-grow: 1; 
   }
 
   .product-name {
@@ -142,7 +157,7 @@ Catálogo de Productos
     margin-bottom: 10px;
     line-height: 1.4;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita a 2 líneas de texto */
+    -webkit-line-clamp: 2; 
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-transform: capitalize;
@@ -152,7 +167,7 @@ Catálogo de Productos
     font-size: 14px;
     color: #666;
     margin-bottom: 20px;
-    margin-top: auto; /* Mantiene el precio siempre en la misma línea base */
+    margin-top: auto; 
   }
 
   .product-price span {
@@ -170,75 +185,104 @@ Catálogo de Productos
     margin-top: auto;
   }
 
-  .btn-details, 
   .btn-add-to-cart {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 10px 5px;
+    gap: 8px;
+    padding: 12px 5px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
     text-decoration: none;
     text-transform: uppercase;
     transition: all 0.3s ease;
     cursor: pointer;
     border: none;
-  }
-
-  .btn-details {
-    background-color: #f8f9fa;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-
-  .btn-details:hover {
-    background-color: #3C3C3C;
-    color: #fff;
-    border-color: #3C3C3C;
-  }
-
-  .btn-add-to-cart {
-    background-color: #3C3C3C;
-    color: #fff;
+    background-color: #2b2b2b; /* Color tipo negro base */
+    color: #fff; /* Texto blanco para resaltar */
+    position: relative;
+    z-index: 2; 
   }
 
   .btn-add-to-cart:hover {
-    background-color: #ECA72C;
+    background-color: #ECA72C; /* Cambia a naranja en hover */
     color: #000;
   }
-  
-  .btn-add-to-cart:hover svg {
-    fill: #000;
+
+  /* --- ESTILOS DE LA NOTIFICACIÓN TOAST --- */
+  .toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background-color: #C06A0A;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toast-close {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: normal;
+    color: rgba(255,255,255,0.8);
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .toast-close:hover {
+    color: white;
   }
 
   /* --- Adaptación para Móviles --- */
   @media (max-width: 768px) {
-    .catalog-container {
-      margin-top: 20px;
+    .catalog-container { margin-top: 15px; }
+    .catalog-title { font-size: 24px; text-align: center; width: 100%; }
+    .catalog-header { justify-content: center; margin-bottom: 5px; padding-bottom: 8px; }
+    .top-pagination { margin: 8px 0 15px 0; }
+    .page-link { min-width: 35px; height: 35px; font-size: 13px; }
+    
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .product { padding: 15px; }
+    .product-image { height: 150px; }
+    .product-buttons { flex-direction: column; }
+
+    /* CORRECCIÓN BOTÓN MÓVIL: Fuerza a 1 línea y reduce proporciones */
+    .btn-add-to-cart {
+      padding: 10px 5px;
+      font-size: 12px;
+      gap: 5px;
+      white-space: nowrap; /* Evita que el texto pase a una segunda línea */
     }
-    .catalog-title {
-      font-size: 26px;
-      text-align: center;
-      width: 100%;
+
+    .toast-notification {
+        bottom: 95px;
+        left: 50%;
+        transform: translate(-50%, 100px);
+        width: 90%;
+        max-width: 350px;
+        justify-content: space-between;
     }
-    .catalog-header {
-      justify-content: center;
-    }
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Tarjetas más pequeñas en móvil para que quepan 2 */
-      gap: 15px;
-    }
-    .product {
-      padding: 15px;
-    }
-    .product-image {
-      height: 150px;
-    }
-    .product-buttons {
-      flex-direction: column; /* Apila los botones en celulares muy pequeños */
+    .toast-notification.show {
+        transform: translate(-50%, 0);
     }
   }
 </style>
@@ -274,6 +318,9 @@ Catálogo de Productos
   <div class="product-grid">
     {% for product in products %}
     <div class="product">
+      
+      <a href="{{ url_for('product', product_id=product.id) }}" class="product-link-overlay" title="Ver detalles del producto"></a>
+
       <div class="product-image">
         <img src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
       </div>
@@ -282,12 +329,15 @@ Catálogo de Productos
         <div class="product-price">Precio: <span>C$ {{ product.price }}</span></div>
         
         <div class="product-buttons">
-          <a href="{{ url_for('product', product_id=product.id) }}" class="btn-details">Detalles</a>
-          <button class="btn-add-to-cart">
-            <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.1em" fill="currentColor" viewBox="0 0 576 512">
+          <button class="btn-add-to-cart" 
+                  data-id="{{ product.id }}" 
+                  data-name="{{ product.name }}" 
+                  data-price="{{ product.price }}" 
+                  data-image="{{ product.url }}">
+            <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
               <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
             </svg>
-            <span>Agregar</span>
+            <span>Añadir al carrito</span>
           </button>
         </div>
       </div>
@@ -319,10 +369,80 @@ Catálogo de Productos
 
 </div>
 
+<div class="toast-notification" id="cart-toast">
+    <span>Ítem agregado al carrito</span>
+    <span class="toast-close" id="toast-close-btn">&times;</span>
+</div>
+
 <script>
-  const product_list = {{ products|tojson|safe }};
+  document.addEventListener('DOMContentLoaded', () => {
+      const addButtons = document.querySelectorAll('.btn-add-to-cart');
+      const toast = document.getElementById('cart-toast');
+      const toastCloseBtn = document.getElementById('toast-close-btn');
+      let toastTimeout;
+
+      // Función para mostrar la notificación
+      function showToast() {
+          toast.classList.add('show');
+          
+          // Si el usuario agrega otro producto rápido, reiniciamos el temporizador
+          if (toastTimeout) {
+              clearTimeout(toastTimeout);
+          }
+          
+          // Ocultar automáticamente después de 3 segundos
+          toastTimeout = setTimeout(() => {
+              toast.classList.remove('show');
+          }, 3000);
+      }
+
+      // Funcionalidad para cerrar manualment el Toast
+      toastCloseBtn.addEventListener('click', () => {
+          toast.classList.remove('show');
+          if (toastTimeout) clearTimeout(toastTimeout);
+      });
+
+      addButtons.forEach(btn => {
+          btn.addEventListener('click', function(e) {
+              // Prevenimos cualquier acción por defecto
+              e.preventDefault();
+              // Evitamos que el click afecte al enlace invisible que está por debajo
+              e.stopPropagation();
+
+              // 1. Extraemos los datos del producto
+              const product = {
+                  id: this.dataset.id,
+                  nombre: this.dataset.name,
+                  precio: parseFloat(this.dataset.price),
+                  imagen: this.dataset.image,
+                  cantidad: 1
+              };
+
+              // 2. Obtenemos el carrito actual
+              let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
+
+              // 3. Verificamos si ya existe
+              const existingProduct = cart.find(p => p.id === product.id);
+
+              if (existingProduct) {
+                  existingProduct.cantidad += 1;
+              } else {
+                  cart.push(product);
+              }
+
+              // 4. Guardamos en la memoria
+              localStorage.setItem('miCarrito', JSON.stringify(cart));
+
+              // 5. Actualizamos la burbuja global (función de layout.html)
+              if (typeof window.renderCart === 'function') {
+                  window.renderCart();
+              }
+
+              // 6. Mostramos la notificación elegante
+              showToast();
+          });
+      });
+  });
 </script>
 
-<script src="/static/js/cart_products.js"></script>
-  
 {% endblock %}
