@@ -193,11 +193,9 @@ def send():
         if not name or not price or not description or not category:
             return render_template("apology.html")
 
-        # --- LÓGICA MULTI-IMAGEN ---
-        # Obtenemos la lista de TODOS los archivos subidos
+        # --- LÓGICA MULTI-IMAGEN (Intacta) ---
         files = request.files.getlist("imagenes_producto")
         manual_url = request.form.get("url")
-        
         urls_subidas = []
 
         for file in files:
@@ -209,36 +207,30 @@ def send():
                     
                     buffer_webp = io.BytesIO()
                     img.save(buffer_webp, format="WEBP", quality=80)
-                    buffer_webp.seek(0)
-                    
+                    file_bytes = buffer_webp.getvalue() 
                     file_name = f"{uuid.uuid4().hex}.webp"
                     
                     supabase.storage.from_("productos").upload(
-                        path=file_name,
-                        file=buffer_webp.read(),
-                        file_options={"content-type": "image/webp"}
+                        path=file_name, file=file_bytes, file_options={"content-type": "image/webp"}
                     )
-                    # Guardamos la URL pública en nuestra lista
                     public_url = supabase.storage.from_("productos").get_public_url(file_name)
                     urls_subidas.append(public_url)
                 except Exception as e:
                     print(f"Error procesando imagen: {e}")
 
-        # Definir la imagen principal (la primera subida, o el link manual, o vacío)
         main_url = urls_subidas[0] if urls_subidas else (manual_url if manual_url else "")
 
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # 1. Insertar producto con su imagen principal
+        # 1. Insertar producto
         cursor.execute("""
             INSERT INTO products (name, price, description, id_category, url) 
             VALUES(%s, %s, %s, %s, %s) RETURNING id
         """, (name, price, description, category, main_url))
-        
         product_id = cursor.fetchone()["id"]
 
-        # 2. Insertar el resto de las imágenes en la nueva tabla (si hay más de una)
+        # 2. Insertar el resto de las imágenes
         if len(urls_subidas) > 1:
             for extra_url in urls_subidas[1:]:
                 cursor.execute("""
@@ -246,16 +238,40 @@ def send():
                     VALUES (%s, %s)
                 """, (product_id, extra_url))
 
-        # 3. Guardar especificaciones
+        # 3. Guardar Especificaciones
         for key in request.form:
-            if key.startswith("attribute") and request.form[key]:
+            if key.startswith("attribute") and request.form[key].strip():
                 attribute_num = key.replace("attribute", "")
-                attribute = request.form[key]
-                value = request.form.get("value" + attribute_num)
+                attribute = request.form[key].strip()
+                value = request.form.get("value" + attribute_num, "").strip()
                 cursor.execute("""
                     INSERT INTO product_specifications (product_id, attribute, value) 
                     VALUES (%s, %s, %s)
                 """, (product_id, attribute, value))
+
+        # 4. NUEVO: Guardar Variaciones Agrupadas por Tipo
+        # Buscamos todos los índices de tipos de variación creados
+        variation_indices = []
+        for key in request.form:
+            if key.startswith("var_type_"):
+                variation_indices.append(key.split("_")[-1])
+
+        for idx in variation_indices:
+            var_type = request.form.get(f"var_type_{idx}", "Opción").strip()
+            # Iteramos buscando las opciones pertenecientes a este tipo (idx)
+            for key in request.form:
+                if key.startswith(f"var_name_{idx}_"):
+                    opt_idx = key.split("_")[-1]
+                    var_name = request.form.get(key).strip()
+                    # Si no hay precio, usamos 0 o el precio base. Usamos 0 por defecto.
+                    var_price = request.form.get(f"var_price_{idx}_{opt_idx}")
+                    var_price = float(var_price) if var_price else 0.0
+
+                    if var_name:
+                        cursor.execute("""
+                            INSERT INTO product_variations (product_id, type, name, price) 
+                            VALUES (%s, %s, %s, %s)
+                        """, (product_id, var_type, var_name, var_price))
 
         conn.commit()
         conn.close()
@@ -267,7 +283,47 @@ def send():
         if session["user_id"] == 1:
             return render_template("send.html")
         return redirect("/")
+
+
+
+# --- NUEVA RUTA API PARA EL MODAL (QUICK VIEW) ---
+@app.route('/api/product_quickview/<int:product_id>')
+def api_product_quickview(product_id):
+    """Retorna los datos de un producto y sus variaciones en formato JSON para el Modal."""
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     
+    # Obtener el producto
+    cursor.execute("SELECT id, name, price, description, url FROM products WHERE id = %s", (product_id,))
+    prod = cursor.fetchone()
+    
+    if not prod:
+        conn.close()
+        return jsonify({"success": False, "error": "Producto no encontrado"}), 404
+
+    # Obtener variaciones
+    cursor.execute("SELECT type, name, price FROM product_variations WHERE product_id = %s", (product_id,))
+    variations = cursor.fetchall()
+    conn.close()
+
+    vars_list = [{"type": v["type"], "name": v["name"], "price": float(v["price"])} for v in variations]
+
+    return jsonify({
+        "success": True,
+        "product": {
+            "id": prod["id"],
+            "name": prod["name"],
+            "price": float(prod["price"]),
+            "description": prod["description"],
+            "image": prod["url"],
+            "has_variations": len(vars_list) > 0
+        },
+        "variations": vars_list
+    })
+
+
+
+
 
 
 @app.route('/admin')
@@ -299,7 +355,13 @@ def products(page=1):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    cursor.execute('SELECT * FROM products LIMIT %s OFFSET %s', (products_per_page, start_index))
+    # CORRECCIÓN AQUÍ: Agregamos un EXISTS para saber si tiene variaciones en la otra tabla
+    cursor.execute('''
+        SELECT p.*, 
+               EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+        FROM products p
+        LIMIT %s OFFSET %s
+    ''', (products_per_page, start_index))
     products = cursor.fetchall()
 
     cursor.execute('SELECT COUNT(*) AS count FROM products')
@@ -332,6 +394,10 @@ def product(product_id):
     # Obtener imágenes extra
     cursor.execute("SELECT image_url FROM product_images WHERE product_id = %s", (product_id,))
     extra_images = cursor.fetchall()
+    
+    # CORREGIDO: Aquí es donde agregamos "type" al SELECT
+    cursor.execute("SELECT type, name, price FROM product_variations WHERE product_id = %s", (product_id,))
+    variations = cursor.fetchall()
 
     # Productos relacionados
     cursor.execute('''
@@ -346,15 +412,15 @@ def product(product_id):
     user_logged_in = "user_id" in session
     user_name = get_user_name(session.get("user_id"))
 
+    # Pasamos las variaciones al HTML
     return render_template('products.html', 
                            product=product, 
                            product_specifications=product_specifications,
                            extra_images=extra_images,
+                           variations=variations,
                            related_products=related_products, 
                            user_logged_in=user_logged_in, 
                            user_name=user_name)
-
-
 
 @app.route("/products_by_category/<int:category_id>", defaults={'page': 1})
 @app.route("/products_by_category/<int:category_id>/<int:page>")

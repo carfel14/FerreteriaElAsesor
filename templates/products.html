@@ -36,7 +36,7 @@
     }
   }
 
-  /* --- Galería de Imágenes (Miniaturas a la Izquierda) --- */
+  /* --- Galería de Imágenes --- */
   .gallery-wrapper {
     display: flex;
     gap: 15px;
@@ -176,14 +176,63 @@
     font-size: 30px;
     font-weight: 900;
     color: #D3242B;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
+  }
+
+  /* =========================================
+     NUEVO: Variaciones Estilo Amazon
+  ========================================= */
+  .product-variations-wrapper {
+    margin-bottom: 25px;
+  }
+
+  .variation-label {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  .variation-label span {
+    color: #D3242B;
+    font-weight: 600;
+  }
+
+  .variations-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .variation-btn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .variation-btn:hover {
+    border-color: #888;
+    background-color: #f9f9f9;
+  }
+
+  .variation-btn.active {
+    border: 2px solid #ECA72C;
+    background-color: #fffaf0; /* Un tono crema muy suave */
+    color: #000;
+    font-weight: bold;
+    padding: 7px 15px; /* Restamos 1px para compensar el borde y que no brinque el botón */
   }
 
   /* --- Controles de Compra --- */
   .purchase-controls {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 30px;
     flex-wrap: wrap;
   }
@@ -193,9 +242,9 @@
     align-items: center;
     background: #f8f9fa;
     border: 1px solid #ddd;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
-    height: 48px;
+    height: 45px;
   }
 
   .quantity-controls button {
@@ -212,7 +261,7 @@
   .quantity-controls button:hover { background: #e2e6ea; }
 
   .quantity-input {
-    width: 50px;
+    width: 45px;
     height: 100%;
     text-align: center;
     border: none;
@@ -227,30 +276,43 @@
     margin: 0;
   }
 
+  /* Botón Principal (Negro -> Naranja en Hover) */
   .cart-button-main {
     flex-grow: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    height: 48px;
-    font-size: 16px;
+    gap: 8px;
+    height: 45px; 
+    font-size: 14px;
     font-weight: bold;
     text-transform: uppercase;
-    background-color: #3C3C3C;
-    color: #fff;
-    border: 2px solid #000000;
-    border-radius: 10px;
+    background-color: #1a1a1a; /* Negro elegante */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     max-width: 250px;
+    white-space: nowrap; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   }
 
-  .cart-button-main:hover {
-    background-color: #ECA72C;
-    color: black;
+  .cart-button-main svg {
+    fill: #ffffff;
+    transition: fill 0.3s ease;
   }
-  .cart-button-main:hover svg { fill: black; }
+
+  /* Hover a color naranja e ícono/texto a negro */
+  .cart-button-main:hover {
+    background-color: #ECA72C; 
+    color: #000000;
+    box-shadow: 0 6px 15px rgba(236, 167, 44, 0.4);
+  }
+  
+  .cart-button-main:hover svg {
+    fill: #000000;
+  }
 
   /* --- Secciones de Texto y Tablas --- */
   .section-container {
@@ -305,13 +367,9 @@
 
   .related-item:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 
-  /* Capa invisible para hacer toda la tarjeta clickeable */
   .product-link-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 1;
     cursor: pointer;
   }
@@ -363,7 +421,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 2; /* Esto asegura que el botón quede por encima del enlace invisible de la tarjeta */
+    z-index: 2; 
   }
 
   .btn-related-add { background-color: #3C3C3C; color: white; }
@@ -416,8 +474,25 @@
 
     <div class="product-info-section">
       <h1>{{ product.name }}</h1>
-      <div class="product-price-tag">C$ {{ product.price }}</div>
+      <div class="product-price-tag" id="displayPrice">C$ {{ product.price }}</div>
       
+      {% if variations %}
+      <div class="product-variations-wrapper">
+        <p class="variation-label"><strong>Opciones disponibles:</strong> <span id="selected-variation-name">{{ variations[0].name }}</span></p>
+        
+        <div class="variations-container">
+          {% for var in variations %}
+            <button type="button" 
+                    class="variation-btn {% if loop.first %}active{% endif %}" 
+                    data-name="{{ var.name }}" 
+                    data-price="{{ var.price }}">
+              {{ var.name }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <div class="purchase-controls">
         <div class="quantity-controls">
           <button type="button" onclick="document.getElementById('qtyInput').stepDown()">-</button>
@@ -430,10 +505,10 @@
                 data-name="{{ product.name }}" 
                 data-price="{{ product.price }}" 
                 data-image="{{ product.url }}">
-          <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512" style="transition: fill 0.3s;">
+          <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" viewBox="0 0 576 512">
             <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
           </svg>
-          Agregar al carrito
+          Añadir al carrito
         </button>
       </div>
     </div>
@@ -489,7 +564,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
               <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
             </svg>
-            <span style="margin-left: 8px;">Agregar al carrito</span>
+            <span style="margin-left: 8px;">Añadir al carrito</span>
           </button>
         </div>
       </div>
@@ -508,7 +583,6 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     
-    // --- 1. LÓGICA DEL CARRITO ---
     const toast = document.getElementById('cart-toast');
     const toastCloseBtn = document.getElementById('toast-close-btn');
     let toastTimeout;
@@ -524,10 +598,9 @@
         if (toastTimeout) clearTimeout(toastTimeout);
     });
 
-    // Función global para agregar productos a localStorage
     function agregarProductoAlCarrito(productoData) {
         let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
-        const existingProduct = cart.find(p => p.id == productoData.id);
+        const existingProduct = cart.find(p => p.id === productoData.id);
 
         if (existingProduct) {
             existingProduct.cantidad += productoData.cantidad;
@@ -536,25 +609,65 @@
         }
 
         localStorage.setItem('miCarrito', JSON.stringify(cart));
-
         if (typeof window.renderCart === 'function') {
             window.renderCart();
         }
         showToast();
     }
 
-    // Evento para el botón principal (lee la cantidad del input)
+    // --- LÓGICA DE VARIACIONES (Botones tipo Amazon) ---
+    const variationBtns = document.querySelectorAll('.variation-btn');
+    const displayPrice = document.getElementById('displayPrice');
     const btnAddMain = document.getElementById('addMainToCart');
+    const selectedVariationName = document.getElementById('selected-variation-name');
+
+    if (variationBtns.length > 0) {
+      function selectVariation(btn) {
+        // Quitar estado activo a todos los botones
+        variationBtns.forEach(b => b.classList.remove('active'));
+        // Poner estado activo al botón clickeado
+        btn.classList.add('active');
+
+        // Extraer precio y nombre del botón
+        const newPrice = parseFloat(btn.dataset.price).toFixed(2);
+        const varName = btn.dataset.name;
+
+        // Actualizar visualmente
+        displayPrice.innerText = 'C$ ' + newPrice;
+        if (selectedVariationName) selectedVariationName.innerText = varName;
+
+        // Asignar datos al botón del carrito
+        if (btnAddMain) {
+            btnAddMain.dataset.price = newPrice;
+            btnAddMain.dataset.variation = varName;
+        }
+      }
+
+      // Asignar evento click a cada botón
+      variationBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          selectVariation(this);
+        });
+      });
+
+      // Inicializar disparando el primero por defecto
+      selectVariation(variationBtns[0]);
+    }
+
+    // Botón de agregar al carrito principal
     if (btnAddMain) {
         btnAddMain.addEventListener('click', function(e) {
             e.preventDefault();
-            // Obtenemos la cantidad elegida por el usuario
             let qty = parseInt(document.getElementById('qtyInput').value);
             if (isNaN(qty) || qty < 1) qty = 1;
 
+            let variationName = this.dataset.variation ? this.dataset.variation : '';
+            let finalName = variationName ? `${this.dataset.name} - ${variationName}` : this.dataset.name;
+            let cartId = this.dataset.id + (variationName ? '-' + variationName : '');
+
             const product = {
-                id: this.dataset.id,
-                nombre: this.dataset.name,
+                id: cartId,
+                nombre: finalName,
                 precio: parseFloat(this.dataset.price),
                 imagen: this.dataset.image,
                 cantidad: qty
@@ -563,12 +676,12 @@
         });
     }
 
-    // Eventos para los botones de productos relacionados (siempre agregan 1)
+    // Botones productos relacionados
     const btnRelatedAdd = document.querySelectorAll('.btn-add-related');
     btnRelatedAdd.forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Evita que se dispare el enlace del overlay
+            e.stopPropagation(); 
 
             const product = {
                 id: this.dataset.id,
@@ -582,7 +695,7 @@
     });
 
 
-    // --- 2. LÓGICA DE GALERÍA E IMÁGENES ---
+    // --- LÓGICA DE GALERÍA E IMÁGENES ---
     const images = [
       "{{ product.url }}",
       {% for img in extra_images %}
@@ -633,7 +746,7 @@
       }
     }
 
-    // --- 3. LÓGICA DE LA LUPA LATERAL ---
+    // --- LÓGICA DE LA LUPA LATERAL ---
     const imgContainer = document.getElementById("imgContainer");
     const zoomBox = document.getElementById("zoomBox");
 

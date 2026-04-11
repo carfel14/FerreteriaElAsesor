@@ -1,447 +1,466 @@
 {% extends "layout.html" %}
 
+
+
 {% block title %}
+
 Catálogo de Productos
+
 {% endblock %}
 
+
+
 {% block main %}
+
 <style>
   /* =========================================
      DISEÑO DEL CATÁLOGO DE PRODUCTOS
   ========================================= */
+  .catalog-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+  .catalog-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ECA72C; padding-bottom: 10px; margin-bottom: 10px; }
+  .catalog-title { font-size: 32px; font-weight: 800; color: #2b2b2b; margin: 0; }
 
-  .catalog-container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
-  }
-
-  .catalog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #ECA72C;
-    padding-bottom: 10px; 
-    margin-bottom: 10px; 
-  }
-
-  .catalog-title {
-    font-size: 32px;
-    font-weight: 800;
-    color: #2b2b2b;
-    margin: 0;
-  }
-
-  /* --- Paginación Premium --- */
-  .pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-  }
-  
+  /* --- Paginación --- */
+  .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; }
   .top-pagination { margin: 10px 0 25px 0; }
   .bottom-pagination { margin: 40px 0; }
+  .page-link { display: inline-flex; justify-content: center; align-items: center; min-width: 40px; height: 40px; padding: 0 12px; background: #fff; border: 1px solid #eaeaea; border-radius: 8px; color: #333; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02); position: relative; z-index: 10; }
+  .page-link:hover:not(.disabled) { background: #ECA72C; border-color: #ECA72C; color: #000; transform: translateY(-2px); }
+  .page-link.active { background: #D3242B; border-color: #D3242B; color: #fff; box-shadow: 0 4px 10px rgba(211, 36, 43, 0.3); }
+  .page-link.disabled { background: #f8f9fa; color: #ccc; border-color: #f1f1f1; cursor: not-allowed; box-shadow: none; }
 
-  .page-link {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 40px;
-    height: 40px;
-    padding: 0 12px;
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    color: #333;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    position: relative;
-    z-index: 10;
-  }
+  /* --- Cuadrícula de Productos --- */
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+  .product { background: #fff; border: 1px solid #eaeaea; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden; }
+  .product:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: transparent; }
+  .product-link-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; cursor: pointer; }
+  .product-image { height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding: 10px; background-color: #fdfdfd; border-radius: 10px; }
+  .product-image img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.3s ease; }
+  .product:hover .product-image img { transform: scale(1.08); }
+  .product-details { display: flex; flex-direction: column; flex-grow: 1; }
+  .product-name { font-weight: 700; font-size: 16px; color: #2b2b2b; margin-bottom: 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-transform: capitalize; }
+  .product-price { font-size: 14px; color: #666; margin-bottom: 20px; margin-top: auto; }
+  .product-price span { font-size: 20px; font-weight: 900; color: #D3242B; display: block; margin-top: 5px; }
 
-  .page-link:hover:not(.disabled) {
-    background: #ECA72C;
-    border-color: #ECA72C;
-    color: #000;
-    transform: translateY(-2px);
-  }
+  /* --- Botones --- */
+  .product-buttons { display: flex; gap: 10px; margin-top: auto; }
+  .btn-add-to-cart { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 5px; border-radius: 8px; font-size: 14px; font-weight: bold; text-decoration: none; text-transform: uppercase; transition: all 0.3s ease; cursor: pointer; border: none; background-color: #2b2b2b; color: #fff; position: relative; z-index: 2; }
+  .btn-add-to-cart:hover { background-color: #ECA72C; color: #000; }
 
-  .page-link.active {
-    background: #D3242B;
-    border-color: #D3242B;
-    color: #fff;
-    box-shadow: 0 4px 10px rgba(211, 36, 43, 0.3);
-  }
+  /* --- Notificación Toast --- */
+  .toast-notification { position: fixed; bottom: 30px; left: 30px; background-color: #C06A0A; color: white; padding: 14px 20px; border-radius: 30px; display: flex; align-items: center; gap: 40px; font-size: 15px; font-weight: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; transform: translateY(100px); opacity: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; pointer-events: none; }
+  .toast-notification.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .toast-close { cursor: pointer; font-size: 18px; font-weight: normal; color: rgba(255,255,255,0.8); transition: color 0.2s; line-height: 1; }
+  .toast-close:hover { color: white; }
 
-  .page-link.disabled {
-    background: #f8f9fa;
-    color: #ccc;
-    border-color: #f1f1f1;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  /* =========================================
+     MODAL DE VARIACIONES (El CSS que faltaba)
+  ========================================= */
+  .quickview-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+  .quickview-overlay.active { display: flex; opacity: 1; }
+  .quickview-content { background: #fff; width: 90%; max-width: 700px; border-radius: 16px; position: relative; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-20px); transition: transform 0.3s ease; }
+  .quickview-overlay.active .quickview-content { transform: translateY(0); }
+  .quickview-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; transition: 0.2s; }
+  .quickview-close:hover { color: #D3242B; }
+  .quickview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+  .quickview-img { width: 100%; height: auto; max-height: 250px; object-fit: contain; border-radius: 10px; background: #fdfdfd; padding: 10px; }
+  .quickview-info h2 { margin-top: 0; color: #2b2b2b; font-size: 22px; }
+  .quickview-price { font-size: 24px; font-weight: 900; color: #D3242B; margin: 15px 0; }
+  .btn-confirm-cart { width: 100%; background: #2b2b2b; color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: background 0.3s; display: flex; justify-content: center; align-items: center; }
+  .btn-confirm-cart:hover { background: #ECA72C; color: #000; }
 
-  /* --- Cuadrícula de Productos (Grid) --- */
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 25px;
-  }
+  /* --- Recuadros (Píldoras) --- */
+  .quickview-description { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+  .variation-group-label { font-size: 14px; font-weight: 700; color: #2b2b2b; margin-bottom: 10px; text-transform: capitalize; }
+  .variation-group-label span { font-weight: normal; color: #D3242B; }
+  .variation-options { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
+  .variation-box { padding: 8px 16px; border: 1px solid #ddd; border-radius: 6px; background: #fff; color: #333; cursor: pointer; font-size: 14px; transition: all 0.2s ease; user-select: none; }
+  .variation-box:hover { border-color: #aaa; }
+  .variation-box.active { border-color: #ECA72C; color: #000; font-weight: bold; box-shadow: 0 0 0 1px #ECA72C; }
 
-  /* --- Tarjeta de Producto (Card) --- */
-  .product {
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .product:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    border-color: transparent;
-  }
-
-  /* --- Enlace invisible que hace clickeable toda la tarjeta --- */
-  .product-link-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-    cursor: pointer;
-  }
-
-  .product-image {
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #fdfdfd;
-    border-radius: 10px;
-  }
-
-  .product-image img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  .product:hover .product-image img {
-    transform: scale(1.08);
-  }
-
-  .product-details {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; 
-  }
-
-  .product-name {
-    font-weight: 700;
-    font-size: 16px;
-    color: #2b2b2b;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-transform: capitalize;
-  }
-
-  .product-price {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
-    margin-top: auto; 
-  }
-
-  .product-price span {
-    font-size: 20px;
-    font-weight: 900;
-    color: #D3242B;
-    display: block;
-    margin-top: 5px;
-  }
-
-  /* --- Botones de Acción --- */
-  .product-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: auto;
-  }
-
-  .btn-add-to-cart {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 5px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-    background-color: #2b2b2b; /* Color tipo negro base */
-    color: #fff; /* Texto blanco para resaltar */
-    position: relative;
-    z-index: 2; 
-  }
-
-  .btn-add-to-cart:hover {
-    background-color: #ECA72C; /* Cambia a naranja en hover */
-    color: #000;
-  }
-
-  /* --- ESTILOS DE LA NOTIFICACIÓN TOAST --- */
-  .toast-notification {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    background-color: #C06A0A;
-    color: white;
-    padding: 14px 20px;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    font-size: 15px;
-    font-weight: 500;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    z-index: 9999;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-    pointer-events: none;
-  }
-
-  .toast-notification.show {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .toast-close {
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: normal;
-    color: rgba(255,255,255,0.8);
-    transition: color 0.2s;
-    line-height: 1;
-  }
-
-  .toast-close:hover {
-    color: white;
-  }
-
-  /* --- Adaptación para Móviles --- */
+  /* --- Móviles --- */
   @media (max-width: 768px) {
     .catalog-container { margin-top: 15px; }
     .catalog-title { font-size: 24px; text-align: center; width: 100%; }
     .catalog-header { justify-content: center; margin-bottom: 5px; padding-bottom: 8px; }
     .top-pagination { margin: 8px 0 15px 0; }
     .page-link { min-width: 35px; height: 35px; font-size: 13px; }
-    
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
     .product { padding: 15px; }
     .product-image { height: 150px; }
     .product-buttons { flex-direction: column; }
-
-    /* CORRECCIÓN BOTÓN MÓVIL: Fuerza a 1 línea y reduce proporciones */
-    .btn-add-to-cart {
-      padding: 10px 5px;
-      font-size: 12px;
-      gap: 5px;
-      white-space: nowrap; /* Evita que el texto pase a una segunda línea */
-    }
-
-    .toast-notification {
-        bottom: 95px;
-        left: 50%;
-        transform: translate(-50%, 100px);
-        width: 90%;
-        max-width: 350px;
-        justify-content: space-between;
-    }
-    .toast-notification.show {
-        transform: translate(-50%, 0);
-    }
+    .btn-add-to-cart { padding: 10px 5px; font-size: 12px; gap: 5px; white-space: nowrap; }
+    .toast-notification { bottom: 95px; left: 50%; transform: translate(-50%, 100px); width: 90%; max-width: 350px; justify-content: space-between; }
+    .toast-notification.show { transform: translate(-50%, 0); }
+    .quickview-grid { grid-template-columns: 1fr; gap: 15px; }
+    .quickview-img { max-height: 180px; }
+    .quickview-content { padding: 20px; width: 95%; }
   }
 </style>
 
 <div class="catalog-container">
 
+
+
   <div class="catalog-header">
+
     <h1 class="catalog-title">Nuestros Productos</h1>
+
   </div>
-  
+
+ 
+
   <div class="pagination-container top-pagination">
+
     {% if current_page > 1 %}
+
       <a href="{{ url_for('products', page=current_page-1) }}" class="page-link arrow">&lt;</a>
+
     {% else %}
+
       <span class="page-link arrow disabled">&lt;</span>
+
     {% endif %}
+
+
 
     {% for page in range(1, total_pages + 1) %}
+
       {% if page == current_page %}
+
         <a href="{{ url_for('products', page=page) }}" class="page-link active">{{ page }}</a>
+
       {% else %}
+
         <a href="{{ url_for('products', page=page) }}" class="page-link">{{ page }}</a>
+
       {% endif %}
+
     {% endfor %}
 
+
+
     {% if current_page < total_pages %}
+
       <a href="{{ url_for('products', page=current_page+1) }}" class="page-link arrow">&gt;</a>
+
     {% else %}
+
       <span class="page-link arrow disabled">&gt;</span>
+
     {% endif %}
+
   </div>
+
+
 
   <div class="product-grid">
+
     {% for product in products %}
+
     <div class="product">
-      
+
+     
+
       <a href="{{ url_for('product', product_id=product.id) }}" class="product-link-overlay" title="Ver detalles del producto"></a>
 
+
+
       <div class="product-image">
+
         <img src="{{ product.url }}" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
+
       </div>
+
       <div class="product-details">
+
         <div class="product-name" title="{{ product.name }}">{{ product.name }}</div>
+
         <div class="product-price">Precio: <span>C$ {{ product.price }}</span></div>
-        
+
+       
+
         <div class="product-buttons">
-          <button class="btn-add-to-cart" 
-                  data-id="{{ product.id }}" 
-                  data-name="{{ product.name }}" 
-                  data-price="{{ product.price }}" 
+
+          <button class="btn-add-to-cart"
+                  data-variaciones="{{ 'true' if product.variaciones else 'false' }}"
+                  data-id="{{ product.id }}"
+
+                  data-name="{{ product.name }}"
+
+                  data-price="{{ product.price }}"
+
                   data-image="{{ product.url }}">
+
             <svg class="hover_cart" xmlns="http://www.w3.org/2000/svg" height="1.2em" fill="currentColor" viewBox="0 0 576 512">
+
               <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+
             </svg>
+
             <span>Añadir al carrito</span>
+
           </button>
+
         </div>
+
       </div>
+
     </div>
+
     {% endfor %}
+
   </div>
+
+
 
   <div class="pagination-container bottom-pagination">
+
     {% if current_page > 1 %}
+
       <a href="{{ url_for('products', page=current_page-1) }}" class="page-link arrow">&lt;</a>
+
     {% else %}
+
       <span class="page-link arrow disabled">&lt;</span>
+
     {% endif %}
+
+
 
     {% for page in range(1, total_pages + 1) %}
+
       {% if page == current_page %}
+
         <a href="{{ url_for('products', page=page) }}" class="page-link active">{{ page }}</a>
+
       {% else %}
+
         <a href="{{ url_for('products', page=page) }}" class="page-link">{{ page }}</a>
+
       {% endif %}
+
     {% endfor %}
 
+
+
     {% if current_page < total_pages %}
+
       <a href="{{ url_for('products', page=current_page+1) }}" class="page-link arrow">&gt;</a>
+
     {% else %}
+
       <span class="page-link arrow disabled">&gt;</span>
+
     {% endif %}
+
   </div>
 
+
+
 </div>
 
+
+
 <div class="toast-notification" id="cart-toast">
+
     <span>Ítem agregado al carrito</span>
+
     <span class="toast-close" id="toast-close-btn">&times;</span>
+
 </div>
+
+
+<div id="quickview-modal" class="quickview-overlay">
+  <div class="quickview-content">
+    <span class="quickview-close" id="quickview-close-btn">&times;</span>
+    <div class="quickview-body" id="quickview-body">
+        </div>
+  </div>
+</div>
+
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
       const addButtons = document.querySelectorAll('.btn-add-to-cart');
       const toast = document.getElementById('cart-toast');
       const toastCloseBtn = document.getElementById('toast-close-btn');
+      
+      // Variables del Modal
+      const modal = document.getElementById('quickview-modal');
+      const modalBody = document.getElementById('quickview-body');
+      const modalClose = document.getElementById('quickview-close-btn');
       let toastTimeout;
 
-      // Función para mostrar la notificación
-      function showToast() {
+      // 1. Funciones Globales del Toast
+      window.showToast = function() {
           toast.classList.add('show');
-          
-          // Si el usuario agrega otro producto rápido, reiniciamos el temporizador
-          if (toastTimeout) {
-              clearTimeout(toastTimeout);
-          }
-          
-          // Ocultar automáticamente después de 3 segundos
-          toastTimeout = setTimeout(() => {
-              toast.classList.remove('show');
-          }, 3000);
-      }
+          if (toastTimeout) clearTimeout(toastTimeout);
+          toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+      };
 
-      // Funcionalidad para cerrar manualment el Toast
       toastCloseBtn.addEventListener('click', () => {
           toast.classList.remove('show');
           if (toastTimeout) clearTimeout(toastTimeout);
       });
 
+      // 2. Cerrar el Modal
+      modalClose.addEventListener('click', () => modal.classList.remove('active'));
+      // Cerrar al hacer click fuera del contenido (en el fondo oscuro)
+      modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('active');
+      });
+
+      // 3. Lógica principal de los botones de cada producto en el catálogo
       addButtons.forEach(btn => {
           btn.addEventListener('click', function(e) {
-              // Prevenimos cualquier acción por defecto
               e.preventDefault();
-              // Evitamos que el click afecte al enlace invisible que está por debajo
               e.stopPropagation();
 
-              // 1. Extraemos los datos del producto
-              const product = {
+              const tieneVariaciones = this.dataset.variaciones === 'true';
+              const productId = this.dataset.id;
+
+              // SI TIENE VARIACIONES -> ABRIMOS EL MODAL CONSUMIENDO TU API
+              if (tieneVariaciones) {
+                  // Mostramos un texto de carga mientras responde la API
+                  modalBody.innerHTML = '<div style="text-align:center; padding: 40px;">Cargando opciones...</div>';
+                  modal.classList.add('active');
+
+                  fetch(`/api/product_quickview/${productId}`)
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              construirModal(data.product, data.variations);
+                          } else {
+                              modalBody.innerHTML = '<div style="color:red; text-align:center; padding: 20px;">Error al cargar producto</div>';
+                          }
+                      })
+                      .catch(err => {
+                          console.error(err);
+                          modalBody.innerHTML = '<div style="text-align:center; padding: 20px;">Error de conexión.</div>';
+                      });
+                  
+                  return; // Detenemos la ejecución aquí para no agregarlo al carrito genérico
+              }
+
+              // SI NO TIENE VARIACIONES -> SE AGREGA DIRECTO AL CARRITO
+              agregarAlCarritoLocal({
                   id: this.dataset.id,
                   nombre: this.dataset.name,
                   precio: parseFloat(this.dataset.price),
                   imagen: this.dataset.image,
                   cantidad: 1
-              };
-
-              // 2. Obtenemos el carrito actual
-              let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
-
-              // 3. Verificamos si ya existe
-              const existingProduct = cart.find(p => p.id === product.id);
-
-              if (existingProduct) {
-                  existingProduct.cantidad += 1;
-              } else {
-                  cart.push(product);
-              }
-
-              // 4. Guardamos en la memoria
-              localStorage.setItem('miCarrito', JSON.stringify(cart));
-
-              // 5. Actualizamos la burbuja global (función de layout.html)
-              if (typeof window.renderCart === 'function') {
-                  window.renderCart();
-              }
-
-              // 6. Mostramos la notificación elegante
-              showToast();
+              });
           });
       });
+
+      // 4. Función para armar el diseño interno del Modal con RECUADROS (Píldoras)
+      function construirModal(product, variations) {
+          // Extraemos el tipo de variación (ej. "Color", "Talla")
+          const tipoVariacion = variations.length > 0 ? variations[0].type : 'Opción';
+
+          // Construimos los recuadros iterando sobre las variaciones
+          let boxesHTML = '';
+          variations.forEach(v => {
+              boxesHTML += `<div class="variation-box" data-name="${v.name}" data-price="${v.price}">${v.name}</div>`;
+          });
+
+          // Inyectamos el diseño en el HTML del Modal
+          modalBody.innerHTML = `
+              <div class="quickview-grid">
+                  <div>
+                      <img src="${product.image || 'https://via.placeholder.com/300'}" class="quickview-img" alt="${product.name}">
+                  </div>
+                  <div class="quickview-info">
+                      <h2>${product.name}</h2>
+                      <div class="quickview-price" id="qv-price">C$ ${product.price.toFixed(2)}</div>
+                      
+                      <div class="quickview-description">${product.description || ''}</div>
+                      
+                      <div class="variation-group-label">${tipoVariacion}: <span id="qv-selected-label">Selecciona una opción</span></div>
+                      
+                      <div class="variation-options" id="qv-options-container">
+                          ${boxesHTML}
+                      </div>
+
+                      <button class="btn-confirm-cart" id="qv-add-btn">
+                          <svg xmlns="http://www.w3.org/2000/svg" height="1em" fill="currentColor" viewBox="0 0 576 512" style="margin-right: 8px;">
+                              <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                          </svg>
+                          CONFIRMAR SELECCIÓN
+                      </button>
+                  </div>
+              </div>
+          `;
+
+          const boxes = document.querySelectorAll('.variation-box');
+          const priceLabel = document.getElementById('qv-price');
+          const selectedLabel = document.getElementById('qv-selected-label');
+          let precioActual = product.price;
+          let variacionElegida = null;
+
+          // Lógica al hacer clic en un recuadro de variación
+          boxes.forEach(box => {
+              box.addEventListener('click', function() {
+                  // 1. Quitamos la clase 'active' de todos los recuadros
+                  boxes.forEach(b => b.classList.remove('active'));
+                  
+                  // 2. Le ponemos la clase 'active' al que el usuario tocó
+                  this.classList.add('active');
+                  
+                  // 3. Guardamos el valor seleccionado
+                  variacionElegida = this.dataset.name;
+                  
+                  // 4. Actualizamos el texto rojo que dice qué seleccionó
+                  selectedLabel.innerText = variacionElegida;
+
+                  // 5. Actualizamos el precio en tiempo real
+                  const optPrice = parseFloat(this.dataset.price);
+                  precioActual = optPrice > 0 ? optPrice : product.price;
+                  priceLabel.innerText = 'C$ ' + precioActual.toFixed(2);
+              });
+          });
+
+          // Dinámica del botón final "Confirmar Selección"
+          document.getElementById('qv-add-btn').addEventListener('click', () => {
+              if(!variacionElegida) {
+                  alert("Por favor, selecciona una variación antes de continuar.");
+                  return;
+              }
+
+              // Combinamos el ID original con la variación para que el carrito los distinga
+              const productoFinal = {
+                  id: product.id + '-' + variacionElegida, 
+                  nombre: `${product.name} (${variacionElegida})`,
+                  precio: precioActual,
+                  imagen: product.image,
+                  cantidad: 1
+              };
+
+              agregarAlCarritoLocal(productoFinal);
+              document.getElementById('quickview-modal').classList.remove('active'); 
+          });
+      }
+
+      // 5. Función centralizada para guardar en el carrito (Local Storage)
+      function agregarAlCarritoLocal(producto) {
+          let cart = JSON.parse(localStorage.getItem('miCarrito')) || [];
+          const existingProduct = cart.find(p => p.id === producto.id);
+
+          if (existingProduct) {
+              existingProduct.cantidad += 1;
+          } else {
+              cart.push(producto);
+          }
+
+          localStorage.setItem('miCarrito', JSON.stringify(cart));
+          
+          // Si tienes la función de actualizar la burbuja de la cabecera, se llama aquí
+          if (typeof window.renderCart === 'function') window.renderCart();
+          
+          // Mostramos la notificación verde/naranja
+          window.showToast();
+      }
   });
 </script>
 
