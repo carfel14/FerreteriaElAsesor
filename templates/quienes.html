@@ -1,70 +1,160 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Quienes
+Quiénes Somos - Ferretería El Asesor
 {% endblock %}
 
 {% block main %}
-<!-- banner -->
-<div class="quienes">
+<div class="quienes-wrapper">
+    
+    <header class="text-center pt-5 pb-4">
+        <div class="container">
+            <h1 class="hero-title">¿Cómo surgimos?</h1>
+            <h2 class="hero-subtitle">Ferretería <span class="highlight">El Asesor</span></h2>
+        </div>
+    </header>
 
-<h1 class="text-center">¿Cómo surgimos?</h1>
-<h2 class="ferr">Ferretería <br>El Asesor</h2>
-<div class="jumbotron jumbotron-fluid">
-    <div class="">
-        <h1 class="display-4">¡Calidad a precio asequible!</h1>
-        <p class="lead">Nuestra empresa de ferretería tuvo sus modestos comienzos en un pequeño local en el corazón de
-            la ciudad. Todo comenzó cuando nuestro fundador, un apasionado de la construcción y el bricolaje, se dio
-            cuenta de la falta de una ferretería completa y confiable en la zona. Motivado por su amor por las
-            herramientas y los materiales de construcción, decidió emprender el desafío de llenar ese vacío en el
-            mercado.</p>
-        <p class="lead">Con una visión clara en mente, nuestro fundador comenzó a trabajar incansablemente para hacer
-            realidad su sueño. Desde el primer día, se centró en establecer relaciones sólidas con proveedores
-            confiables y en seleccionar productos de alta calidad para satisfacer las necesidades de los profesionales
-            de la construcción y los entusiastas del bricolaje.</p>
-        <p class="lead">Hoy en día, nos enorgullece ser reconocidos como una de las ferreterías líderes en nuestra
-            región. Continuamos creciendo y adaptándonos, buscando siempre nuevas formas de superar las expectativas de
-            nuestros clientes. Nuestra pasión por la calidad, la innovación y el servicio excepcional sigue impulsando
-            nuestro éxito, y esperamos seguir siendo un socio confiable para todos aquellos que buscan soluciones en el
-            ámbito de la construcción, el mantenimiento del hogar y el bricolaje.</p>
-    </div>
-</div>
-<div class="container text-center">
-    <div class="row justify-content-evenly">
-        <div class="col-sm-6 mb-3 mb-sm-0" style="margin-left: 5%;">
-            <h1>Misión</h1>
+    <section class="container mb-5">
+        <div class="story-box shadow-sm rounded-4">
+            <div class="text-center mb-4">
+                <h3 class="display-6 fw-bold text-brand-red">¡Calidad a precio asequible!</h3>
+                <div class="divider"></div>
+            </div>
+            
+            <p class="lead text-muted custom-line-height">
+                Nuestra empresa de ferretería tuvo sus modestos comienzos en un pequeño local en el corazón de la ciudad. Todo comenzó cuando nuestro fundador, un apasionado de la construcción y el bricolaje, se dio cuenta de la falta de una ferretería completa y confiable en la zona. Motivado por su amor por las herramientas y los materiales de construcción, decidió emprender el desafío de llenar ese vacío en el mercado.
+            </p>
+            <p class="lead text-muted custom-line-height">
+                Con una visión clara en mente, nuestro fundador comenzó a trabajar incansablemente para hacer realidad su sueño. Desde el primer día, se centró en establecer relaciones sólidas con proveedores confiables y en seleccionar productos de alta calidad para satisfacer las necesidades de los profesionales de la construcción y los entusiastas del bricolaje.
+            </p>
+            <p class="lead text-muted custom-line-height">
+                Hoy en día, nos enorgullece ser reconocidos como una de las ferreterías líderes en nuestra región. Continuamos creciendo y adaptándonos, buscando siempre nuevas formas de superar las expectativas de nuestros clientes. Nuestra pasión por la calidad, la innovación y el servicio excepcional sigue impulsando nuestro éxito, y esperamos seguir siendo un socio confiable para todos aquellos que buscan soluciones en el ámbito de la construcción, el mantenimiento del hogar y el bricolaje.
+            </p>
         </div>
-        <div class="col-sm-6" style="margin-left: 25%;">
-            <h1>Visión</h1>
+    </section>
+
+    <section class="container mb-5 pb-5">
+        <div class="row g-4">
+            
+            <div class="col-12 col-md-6 d-flex">
+                <div class="card mv-card border-0 shadow-sm w-100 rounded-4">
+                    <div class="card-body text-center p-5">
+                        <div class="icon-circle mb-4">
+                            <i class="fs-1">🎯</i>
+                        </div>
+                        <h2 class="card-title fw-bold mb-3 text-brand-dark">Misión</h2>
+                        <p class="card-text text-muted fs-5">
+                            Proporcionar a nuestros clientes productos y servicios de ferretería de la más alta calidad, ofreciendo un excelente servicio al cliente y asesoramiento experto en cada proyecto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 d-flex">
+                <div class="card mv-card border-0 shadow-sm w-100 rounded-4">
+                    <div class="card-body text-center p-5">
+                        <div class="icon-circle mb-4">
+                            <i class="fs-1">🔭</i>
+                        </div>
+                        <h2 class="card-title fw-bold mb-3 text-brand-dark">Visión</h2>
+                        <p class="card-text text-muted fs-5">
+                            Convertirnos en la ferretería líder de nuestra región, reconocidos por nuestro amplio catálogo, calidad inigualable y un equipo capacitado que brinde el mejor asesoramiento técnico.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-    <div class="row  d-flex justify-content-evenly">
-        <div class="col">
-            <h6>Nuestra misión es proporcionar a nuestros clientes productos y servicios de
-                ferretería de la más alta calidad. Ofreciendo un excelente servicio al cliente
-                y asesoramiento experto.</h6>
-        </div>
-        <div class="col">
-            <h6>Nuestra visión es convertirnos en la ferretería líder en nuestra región,
-                reconocida por la calidad de nuestros productos y servicios. Esforzándonos por ofrecer un amplio catálogo de productos de ferretería,
-                junto con un equipo capacitado que brinde asesoramiento técnico.</h6>
-        </div>
-    </div>
-</div>
+    </section>
 
 </div>
-
 
 <style>
-    .columnas {
-        display: flex;
+    /* VARIABLES DE COLOR BASADAS EN TU LAYOUT */
+    :root {
+        --brand-red: #D3242B;
+        --brand-dark: #3c3c3c;
+        --brand-yellow: #ECA72C;
+        --bg-light: #f4f2f2;
     }
 
-    .columna {
-        flex: 1;
-        padding: 10px;
+    .quienes-wrapper {
+        background-color: #fafbfc;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .text-brand-red { color: var(--brand-red) !important; }
+    .text-brand-dark { color: var(--brand-dark) !important; }
+
+    /* HERO BANNER LIMPIO */
+    .hero-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 5px;
+    }
+
+    .hero-subtitle {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--brand-dark);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .hero-subtitle .highlight {
+        color: var(--brand-red); /* Usamos el rojo para resaltar sin fondo oscuro */
+    }
+
+    /* SECCIÓN DE HISTORIA */
+    .story-box {
+        background: white;
+        padding: 3rem 2rem;
+        border-top: 5px solid var(--brand-red);
+    }
+
+    .divider {
+        height: 4px;
+        width: 60px;
+        background-color: var(--brand-red);
+        margin: 0 auto 20px auto;
+        border-radius: 2px;
+    }
+
+    .custom-line-height {
+        line-height: 1.8;
+        font-size: 1.1rem;
+        text-align: justify;
+    }
+
+    /* TARJETAS DE MISIÓN Y VISIÓN */
+    .mv-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+    }
+
+    .mv-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(211, 36, 43, 0.15) !important;
+    }
+
+    .icon-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background-color: rgba(211, 36, 43, 0.08);
+        border-radius: 50%;
+        color: var(--brand-red);
+    }
+
+    @media (min-width: 768px) {
+        .story-box { padding: 4rem 5rem; }
+        .hero-title { font-size: 1.5rem; }
+        .hero-subtitle { font-size: 4rem; }
     }
 </style>
-
-
 {% endblock %}

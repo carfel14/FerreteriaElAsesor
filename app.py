@@ -98,7 +98,62 @@ def get_user_name(user_id):
 def index():
     user_logged_in = "user_id" in session
     user_name = get_user_name(session.get("user_id"))
-    return render_template("index.html", user_logged_in=user_logged_in, user_name=user_name)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # 1. Obtener los 4 productos más recientes (los últimos agregados)
+    cursor.execute('''
+        SELECT p.*, 
+               EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+        FROM products p
+        ORDER BY p.id DESC
+        LIMIT 4
+    ''')
+    recent_products = cursor.fetchall()
+
+    # 2. Lista completa de tus categorías
+    todas_las_categorias = [
+        {"id": 1, "nombre": "Herramientas"},
+        {"id": 2, "nombre": "Herraje"},
+        {"id": 3, "nombre": "Plomería"},
+        {"id": 4, "nombre": "Electricidad"},
+        {"id": 5, "nombre": "Iluminación"},
+        {"id": 6, "nombre": "Grifería"},
+        {"id": 7, "nombre": "Pintura"},
+        {"id": 8, "nombre": "Hogar"}
+    ]
+    
+    categorias_con_productos = []
+    
+    # 3. Revisar una por una si tienen productos
+    for cat in todas_las_categorias:
+        cursor.execute('''
+            SELECT p.*, 
+                   EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+            FROM products p
+            WHERE p.id_category = %s
+            ORDER BY RANDOM()
+            LIMIT 4
+        ''', (cat["id"],))
+        prods = cursor.fetchall()
+        
+        # MAGIA AQUÍ: Solo agregamos la categoría a la pantalla si encontró al menos 1 producto
+        if prods:
+            categorias_con_productos.append({
+                "id": cat["id"],
+                "nombre": cat["nombre"],
+                "productos": prods
+            })
+
+    conn.close()
+
+    return render_template("index.html", 
+                           user_logged_in=user_logged_in, 
+                           user_name=user_name,
+                           recent_products=recent_products,
+                           categorias_con_productos=categorias_con_productos)
+
 
 @app.route("/logout")
 def logout():
@@ -431,8 +486,13 @@ def products_by_category(category_id, page=1):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    cursor.execute('SELECT * FROM products WHERE id_category = %s LIMIT %s OFFSET %s', 
-                   (category_id, products_per_page, start_index))
+    cursor.execute('''
+            SELECT p.*, 
+                EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+            FROM products p 
+            WHERE id_category = %s 
+            LIMIT %s OFFSET %s
+        ''', (category_id, products_per_page, start_index))
     products = cursor.fetchall()
 
     cursor.execute('SELECT COUNT(*) AS count FROM products WHERE id_category = %s', (category_id,))
@@ -461,44 +521,53 @@ def search(page=1):
     total_products = 0
 
     if texto_busqueda:
-        # 1. Buscar coincidencias exactas
+        # 1. Buscar coincidencias exactas (¡AÑADIMOS LA CONSULTA DE VARIACIONES AQUÍ!)
         cursor.execute("""
-            SELECT * FROM products 
-            WHERE name ILIKE %s OR description ILIKE %s 
+            SELECT p.*, EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+            FROM products p 
+            WHERE p.name ILIKE %s OR p.description ILIKE %s 
             LIMIT %s OFFSET %s
         """, (f'%{texto_busqueda}%', f'%{texto_busqueda}%', products_per_page, start_index))
         resultados = cursor.fetchall()
 
-        # 2. Contar SOLO las coincidencias exactas (Paginación Estricta)
+        # 2. Contar SOLO las coincidencias exactas
         cursor.execute("""
-            SELECT COUNT(*) AS count FROM products 
-            WHERE name ILIKE %s OR description ILIKE %s
+            SELECT COUNT(*) AS count FROM products p
+            WHERE p.name ILIKE %s OR p.description ILIKE %s
         """, (f'%{texto_busqueda}%', f'%{texto_busqueda}%'))
         total_products = cursor.fetchone()["count"]
     else:
-        # Si entran al buscador sin texto, mostramos todo el catálogo
-        cursor.execute("SELECT * FROM products LIMIT %s OFFSET %s", (products_per_page, start_index))
+        # Si entran sin texto, todo el catálogo (¡CON VARIACIONES!)
+        cursor.execute("""
+            SELECT p.*, EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+            FROM products p LIMIT %s OFFSET %s
+        """, (products_per_page, start_index))
         resultados = cursor.fetchall()
         cursor.execute("SELECT COUNT(*) AS count FROM products")
         total_products = cursor.fetchone()["count"]
 
-    # 3. Lógica de relleno: Si en esta página exacta hay menos de 12 ítems, rellenamos
+    # 3. Lógica de relleno: Si hay menos de 12 ítems, rellenamos
     if len(resultados) < products_per_page:
         faltantes = products_per_page - len(resultados)
         
         if resultados:
             ids_excluir = tuple([p['id'] for p in resultados])
             cursor.execute("""
-                SELECT * FROM products 
-                WHERE id NOT IN %s 
+                SELECT p.*, EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+                FROM products p 
+                WHERE p.id NOT IN %s 
                 ORDER BY RANDOM() LIMIT %s
             """, (ids_excluir, faltantes))
         else:
-            cursor.execute("SELECT * FROM products ORDER BY RANDOM() LIMIT %s", (faltantes,))
+            cursor.execute("""
+                SELECT p.*, EXISTS(SELECT 1 FROM product_variations pv WHERE pv.product_id = p.id) AS variaciones
+                FROM products p 
+                ORDER BY RANDOM() LIMIT %s
+            """, (faltantes,))
             
         otros_productos = cursor.fetchall()
 
-    # 4. Cálculo final de páginas (Forzamos mínimo 1 página para no romper la UI visualmente)
+    # 4. Cálculo final de páginas
     total_pages = (total_products // products_per_page) + (total_products % products_per_page > 0)
     if total_pages == 0:
         total_pages = 1
@@ -516,6 +585,7 @@ def search(page=1):
                            user_logged_in=user_logged_in, 
                            user_name=user_name,
                            texto_busqueda=texto_busqueda)
+
 
 
 
